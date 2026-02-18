@@ -11,6 +11,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { clinicMockRepository } from '../repositories/clinicRepository.mock'
 import { registrationSchema, type RegistrationFormValues } from '../schemas/registrationSchema'
 import { PatientFormSection } from '../components/registration/PatientFormSection'
@@ -59,6 +60,7 @@ export function RegistrationPage() {
         gender: values.gender,
         birthDate: values.birthDate,
         phone: values.phone,
+        pinfl: values.pinfl,
         districtId: values.districtId || undefined,
         address: values.address,
       }
@@ -95,6 +97,8 @@ export function RegistrationPage() {
         subtotal,
         discountAmount,
         total,
+        paymentMethod: values.paymentMethod,
+        paidAmount: values.paidAmount,
       })
 
       return { patient, draft }
@@ -118,6 +122,7 @@ export function RegistrationPage() {
       birthDate: '',
       gender: undefined as any,
       phone: '',
+      pinfl: '',
       districtId: '',
       address: '',
       discountId: 'disc_none',
@@ -134,6 +139,8 @@ export function RegistrationPage() {
       specialtyId: 'spec_ent',
       doctorId: '',
       selectedServiceIds: [],
+      paymentMethod: 'cash',
+      paidAmount: 0,
     },
   })
 
@@ -141,6 +148,18 @@ export function RegistrationPage() {
   const openNewCard = watch('openNewCard')
   const selectedServiceIds = watch('selectedServiceIds')
   const discountId = watch('discountId')
+  const cardTypeId = watch('cardTypeId')
+
+  // Auto-generate card number when card type changes
+  useEffect(() => {
+    if (cardTypeId && openNewCard) {
+      const prefix = cardTypeId === 'card_standard' ? 'S' : cardTypeId === 'card_child' ? 'C' : 'X'
+      const random = Math.random().toString(36).substring(2, 8).toUpperCase()
+      const timestamp = Date.now().toString().slice(-4)
+      const generatedCardNumber = `${prefix}-${random}${timestamp}`
+      setValue('cardNumber', generatedCardNumber)
+    }
+  }, [cardTypeId, openNewCard, setValue])
 
   const selectedDiscount =
     dictionaries?.discounts.find((d) => d.id === discountId) ??
@@ -160,6 +179,7 @@ export function RegistrationPage() {
       birthDate: patient.birthDate,
       gender: patient.gender,
       phone: patient.phone,
+      pinfl: patient.pinfl || '',
       districtId: patient.districtId ?? '',
       address: patient.address,
     })
@@ -184,20 +204,59 @@ export function RegistrationPage() {
   }
 
   return (
-    <Stack spacing={3}>
-      <Box>
-        <Typography variant="h5" fontWeight={600} gutterBottom>
-          Добавление пациента
+    <Stack spacing={4}>
+      <Box sx={{ mb: 2 }}>
+        <Typography
+          variant="h4"
+          fontWeight={700}
+          gutterBottom
+          sx={{
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
+        >
+          Регистрация пациента
         </Typography>
-        <Alert severity="warning">
-          Внимание: Поля, отмеченные красным знаком, обязательны для заполнения.
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+          Заполните информацию о пациенте и выберите необходимые услуги
+        </Typography>
+        <Alert severity="warning" icon={false}>
+          <Typography variant="body2" fontWeight={500}>
+            ✓ Поля, отмеченные знаком *, обязательны для заполнения
+          </Typography>
         </Alert>
       </Box>
 
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-          Данные пациента
-        </Typography>
+      <Paper
+        sx={{
+          p: 3,
+          borderTop: '4px solid #1976d2',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontWeight: 700,
+              mr: 2,
+            }}
+          >
+            1
+          </Box>
+          <Typography variant="h6" fontWeight={700}>
+            Личные данные пациента
+          </Typography>
+        </Box>
         <PatientFormSection
           districts={dictionaries.districts}
           register={register}
@@ -210,10 +269,34 @@ export function RegistrationPage() {
         />
       </Paper>
 
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-          Карта пациента
-        </Typography>
+      <Paper
+        sx={{
+          p: 3,
+          borderTop: '4px solid #d32f2f',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #1976d2 0%, #d32f2f 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontWeight: 700,
+              mr: 2,
+            }}
+          >
+            2
+          </Box>
+          <Typography variant="h6" fontWeight={700}>
+            Карта пациента
+          </Typography>
+        </Box>
         <CardSection
           discounts={dictionaries.discounts}
           cardTypes={dictionaries.cardTypes}
@@ -221,6 +304,7 @@ export function RegistrationPage() {
           register={register}
           errors={errors}
           control={control}
+          watch={watch}
           hasReferral={hasReferral}
           openNewCard={openNewCard}
         />
@@ -228,10 +312,34 @@ export function RegistrationPage() {
 
       <Grid container spacing={3} alignItems="flex-start">
         <Grid size={{ xs: 12, md: 8 }}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-              Выбор услуги
-            </Typography>
+          <Paper
+            sx={{
+              p: 3,
+              borderTop: '4px solid #d32f2f',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontWeight: 700,
+                  mr: 2,
+                }}
+              >
+                3
+              </Box>
+              <Typography variant="h6" fontWeight={700}>
+                Выбор услуги
+              </Typography>
+            </Box>
             <ServicePickerSection
               categories={dictionaries.serviceCategories}
               specialties={dictionaries.specialties}
@@ -248,6 +356,9 @@ export function RegistrationPage() {
             services={services}
             selectedDiscount={selectedDiscount}
             onClear={() => setValue('selectedServiceIds', [])}
+            register={register}
+            watch={watch}
+            setValue={setValue}
           />
         </Grid>
       </Grid>
@@ -260,37 +371,63 @@ export function RegistrationPage() {
         }}
       >
         <Paper
-          elevation={3}
+          elevation={6}
           sx={{
             px: 3,
             py: 2,
             display: 'flex',
             justifyContent: 'flex-end',
             gap: 2,
+            background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.05) 0%, rgba(211, 47, 47, 0.05) 100%)',
+            backdropFilter: 'blur(10px)',
+            borderTop: '1px solid rgba(25, 118, 210, 0.1)',
           }}
         >
           <Button
             variant="outlined"
-            color="inherit"
             onClick={() => navigate('/patients')}
+            sx={{
+              borderColor: '#999',
+              color: '#666',
+              '&:hover': {
+                borderColor: '#333',
+                backgroundColor: 'rgba(0,0,0,0.02)',
+              },
+            }}
           >
             Отмена
           </Button>
           <Button
             variant="contained"
-            color="primary"
             onClick={onSubmitSave}
             disabled={saveRegistrationMutation.isPending}
+            sx={{
+              background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',
+              },
+              '&:disabled': {
+                background: 'rgba(0,0,0,0.12)',
+              },
+            }}
           >
-            Сохранить регистрацию
+            {saveRegistrationMutation.isPending ? 'Сохранение...' : 'Сохранить'}
           </Button>
           <Button
             variant="contained"
-            color="secondary"
             onClick={onSubmitSaveAndGoCash}
             disabled={saveRegistrationMutation.isPending}
+            sx={{
+              background: 'linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #b71c1c 0%, #d32f2f 100%)',
+              },
+              '&:disabled': {
+                background: 'rgba(0,0,0,0.12)',
+              },
+            }}
           >
-            Сохранить и перейти к оплате
+            {saveRegistrationMutation.isPending ? 'Сохранение...' : 'К оплате'}
           </Button>
         </Paper>
       </Box>

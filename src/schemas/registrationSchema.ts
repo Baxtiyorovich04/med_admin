@@ -13,6 +13,7 @@ export const registrationSchema = z
       .string()
       .min(1, 'Введите телефон')
       .regex(/^\+998\d{9}$/, 'Телефон в формате +998XXXXXXXXX'),
+    pinfl: z.string().optional().or(z.literal('')),
     districtId: z.string().optional().or(z.literal('')),
     address: z.string().min(1, 'Введите адрес'),
 
@@ -32,6 +33,8 @@ export const registrationSchema = z
     specialtyId: z.string(),
     doctorId: z.string().optional().or(z.literal('')),
     selectedServiceIds: z.array(z.string()),
+    paymentMethod: z.enum(['cash', 'card', 'debt']).optional(),
+    paidAmount: z.number().min(0).optional(),
   })
   .superRefine((data, ctx) => {
     if (data.hasReferral && !data.referralDoctorId) {
@@ -48,20 +51,6 @@ export const registrationSchema = z
           code: z.ZodIssueCode.custom,
           path: ['cardTypeId'],
           message: 'Выберите тип карты',
-        })
-      }
-      if (!data.cardNumber) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['cardNumber'],
-          message: 'Введите номер карты',
-        })
-      }
-      if (!data.cardOpenedAt) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['cardOpenedAt'],
-          message: 'Укажите дату открытия',
         })
       }
     }

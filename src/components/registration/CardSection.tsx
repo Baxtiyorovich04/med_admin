@@ -9,7 +9,7 @@ import {
   Switch,
   TextField,
 } from '@mui/material'
-import { Controller, FieldErrors, UseFormRegister } from 'react-hook-form'
+import { Controller, FieldErrors, UseFormRegister, UseFormWatch } from 'react-hook-form'
 import { DatePicker } from '@mui/x-date-pickers'
 import dayjs from 'dayjs'
 import type { CardType, Discount, Doctor } from '../../types/clinic'
@@ -22,6 +22,7 @@ interface Props {
   register: UseFormRegister<RegistrationFormValues>
   errors: FieldErrors<RegistrationFormValues>
   control: any
+  watch: UseFormWatch<RegistrationFormValues>
   hasReferral: boolean
   openNewCard: boolean
 }
@@ -33,9 +34,12 @@ export function CardSection({
   register,
   errors,
   control,
+  watch,
   hasReferral,
   openNewCard,
 }: Props) {
+  const cardNumber = watch('cardNumber')
+
   return (
     <Grid container spacing={3}>
       <Grid size={{ xs: 12, md: 6 }} container spacing={2}>
@@ -121,7 +125,8 @@ export function CardSection({
                 fullWidth
                 {...register('cardNumber')}
                 error={!!errors.cardNumber}
-                helperText={errors.cardNumber?.message}
+                helperText={errors.cardNumber?.message || 'Генерируется автоматически'}
+                value={cardNumber || ''}
               />
             </Grid>
             <Grid size={12}>
@@ -164,7 +169,7 @@ export function CardSection({
                   ))}
                 </TextField>
                 {errors.responsibleDoctorId && (
-                  <FormHelperText>
+                  <FormHelperText>  
                     {errors.responsibleDoctorId.message as string}
                   </FormHelperText>
                 )}

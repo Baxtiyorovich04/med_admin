@@ -5,42 +5,125 @@
     "timezone": "Asia/Tashkent"
   },
   "districts": [
-    { "id": "dist_yunusabad", "name": "Юнусабад" },
-    { "id": "dist_mirabad", "name": "Мирабад" },
-    { "id": "dist_chilanzar", "name": "Чиланзар" },
-    { "id": "dist_sergeli", "name": "Сергелий" }
+    {
+      "id": "dist_yunusabad",
+      "name": "Юнусабад"
+    },
+    {
+      "id": "dist_mirabad",
+      "name": "Мирабад"
+    },
+    {
+      "id": "dist_chilanzar",
+      "name": "Чиланзар"
+    },
+    {
+      "id": "dist_sergeli",
+      "name": "Сергелий"
+    }
   ],
   "discounts": [
-    { "id": "disc_none", "label": "без скидки", "percent": 0 },
-    { "id": "disc_10", "label": "10%", "percent": 10 },
-    { "id": "disc_20", "label": "20%", "percent": 20 }
+    {
+      "id": "disc_none",
+      "label": "без скидки",
+      "percent": 0
+    },
+    {
+      "id": "disc_10",
+      "label": "10%",
+      "percent": 10
+    },
+    {
+      "id": "disc_20",
+      "label": "20%",
+      "percent": 20
+    }
   ],
   "cardTypes": [
-    { "id": "card_standard", "name": "Стандарт" },
-    { "id": "card_vip", "name": "VIP" },
-    { "id": "card_child", "name": "Детская" }
+    {
+      "id": "card_standard",
+      "name": "Стандарт"
+    },
+    {
+      "id": "card_child",
+      "name": "Детская"
+    }
   ],
   "specialties": [
-    { "id": "spec_ent", "name": "Лор" },
-    { "id": "spec_cardio", "name": "Кардиолог" },
-    { "id": "spec_urology", "name": "Уролог" },
-    { "id": "spec_pediatrics", "name": "Педиатр" },
-    { "id": "spec_gyne", "name": "Гинеколог" },
-    { "id": "spec_endo", "name": "Эндокринолог" },
-    { "id": "spec_trauma_child", "name": "Детского травматолога-ортопеда" },
-    { "id": "spec_neuropsy", "name": "Нейропсихолог" },
-    { "id": "spec_neuro", "name": "Невропатолог" },
-    { "id": "spec_andro", "name": "Андролог" },
-    { "id": "spec_therapy", "name": "Терапевт" },
-    { "id": "spec_surgery", "name": "Хирург" }
+    {
+      "id": "spec_ent",
+      "name": "Лор"
+    },
+    {
+      "id": "spec_cardio",
+      "name": "Кардиолог"
+    },
+    {
+      "id": "spec_urology",
+      "name": "Уролог"
+    },
+    {
+      "id": "spec_pediatrics",
+      "name": "Педиатр"
+    },
+    {
+      "id": "spec_gyne",
+      "name": "Гинеколог"
+    },
+    {
+      "id": "spec_endo",
+      "name": "Эндокринолог"
+    },
+    {
+      "id": "spec_trauma_child",
+      "name": "Детского травматолога-ортопеда"
+    },
+    {
+      "id": "spec_neuropsy",
+      "name": "Нейропсихолог"
+    },
+    {
+      "id": "spec_neuro",
+      "name": "Невропатолог"
+    },
+    {
+      "id": "spec_andro",
+      "name": "Андролог"
+    },
+    {
+      "id": "spec_therapy",
+      "name": "Терапевт"
+    },
+    {
+      "id": "spec_surgery",
+      "name": "Хирург"
+    }
   ],
   "serviceCategories": [
-    { "id": "cat_reception", "name": "Прием" },
-    { "id": "cat_diagnostics", "name": "Диагностика" },
-    { "id": "cat_med_plus", "name": "мед плюс" },
-    { "id": "cat_lab", "name": "Лаборатория" },
-    { "id": "cat_group", "name": "Группа" },
-    { "id": "cat_inpatient", "name": "Стационар" }
+    {
+      "id": "cat_reception",
+      "name": "Прием"
+    },
+    {
+      "id": "cat_diagnostics",
+      "name": "Диагностика"
+    },
+    {
+      "id": "cat_med_plus",
+      "name": "мед плюс"
+    },
+    {
+      "id": "cat_lab",
+      "name": "Лаборатория"
+    },
+    {
+      "id": "cat_group",
+      "name": "Группа"
+    },
+    {
+      "id": "cat_inpatient",
+      "name": "Стационар"
+    }
   ],
   "doctors": [
     {
@@ -62,14 +145,20 @@
       "fullName": "Каримова Нилуфар Шухратовна",
       "specialtyId": "spec_gyne",
       "active": true,
-      "serviceIds": ["srv_gyn_consult", "srv_gyn_ultrasound"]
+      "serviceIds": [
+        "srv_gyn_consult",
+        "srv_gyn_ultrasound"
+      ]
     },
     {
       "id": "doc_1003",
       "fullName": "Рахимов Бехруз Азизович",
       "specialtyId": "spec_cardio",
       "active": true,
-      "serviceIds": ["srv_cardio_consult", "srv_ecg"]
+      "serviceIds": [
+        "srv_cardio_consult",
+        "srv_ecg"
+      ]
     }
   ],
   "services": [
@@ -164,7 +253,8 @@
       "birthDate": "1995-04-12",
       "phone": "+998901112233",
       "districtId": "dist_yunusabad",
-      "address": "Юнусабад, дом 12, кв 45"
+      "address": "Юнусабад, дом 12, кв 45",
+      "pinfl": "12345678901234"
     },
     {
       "id": "pat_2002",
@@ -175,7 +265,44 @@
       "birthDate": "2001-11-03",
       "phone": "+998935556677",
       "districtId": "dist_mirabad",
+      "pinfl": "98765432109876",
       "address": "Мирабад, ул. ... дом 7"
+    },
+    {
+      "id": "pat_2003",
+      "lastName": "Усманов",
+      "firstName": "Марат",
+      "middleName": "Эргашевич",
+      "gender": "male",
+      "birthDate": "1988-07-25",
+      "phone": "+998901234567",
+      "districtId": "dist_chilanzar",
+      "address": "Чиланзар, 15-й мкр, дом 45",
+      "pinfl": "11223344556677"
+    },
+    {
+      "id": "pat_2004",
+      "lastName": "Юсупова",
+      "firstName": "Лилия",
+      "middleName": "Олеговна",
+      "gender": "female",
+      "birthDate": "1992-11-10",
+      "phone": "+998932145678",
+      "districtId": "dist_sergeli",
+      "address": "Сергелий, 1-й квартал, дом 33",
+      "pinfl": "98765432154321"
+    },
+    {
+      "id": "pat_2005",
+      "lastName": "Кучканов",
+      "firstName": "Руслан",
+      "middleName": "Ахмедович",
+      "gender": "male",
+      "birthDate": "1985-03-18",
+      "phone": "+998909876543",
+      "districtId": "dist_yunusabad",
+      "address": "Юнусабад, 1-й мкр, дом 18",
+      "pinfl": "55667788990011"
     }
   ],
   "patientCards": [
@@ -189,6 +316,70 @@
       "responsibleDoctorId": "doc_1001"
     }
   ],
-  "registrationDrafts": []
+  "registrationDrafts": [],
+  "income": [
+    {
+      "date": "2026-02-10",
+      "amount": 2500000,
+      "description": "Консультации",
+      "paymentMethod": "cash",
+      "patientId": "pat_2001"
+    },
+    {
+      "date": "2026-02-11",
+      "amount": 3200000,
+      "description": "Услуги",
+      "paymentMethod": "card",
+      "patientId": "pat_2002"
+    },
+    {
+      "date": "2026-02-12",
+      "amount": 2800000,
+      "description": "Консультации",
+      "paymentMethod": "debt",
+      "patientId": "pat_2003"
+    },
+    {
+      "date": "2026-02-13",
+      "amount": 4100000,
+      "description": "Процедуры",
+      "paymentMethod": "card",
+      "patientId": "pat_2004"
+    },
+    {
+      "date": "2026-02-14",
+      "amount": 3500000,
+      "description": "Услуги",
+      "paymentMethod": "cash",
+      "patientId": "pat_2005"
+    },
+    {
+      "date": "2026-02-15",
+      "amount": 2900000,
+      "description": "Консультации",
+      "paymentMethod": "debt",
+      "patientId": "pat_2001"
+    },
+    {
+      "date": "2026-02-16",
+      "amount": 3800000,
+      "description": "Диагностика",
+      "paymentMethod": "card",
+      "patientId": "pat_2002"
+    },
+    {
+      "date": "2026-02-17",
+      "amount": 2600000,
+      "description": "Консультации",
+      "paymentMethod": "cash",
+      "patientId": "pat_2003"
+    },
+    {
+      "date": "2026-02-18",
+      "amount": 3300000,
+      "description": "Услуги",
+      "paymentMethod": "card",
+      "patientId": "pat_2004"
+    }
+  ]
 }
-

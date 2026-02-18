@@ -133,10 +133,10 @@ export function PatientFormSection({
             value={phoneValue ? formatUzPhoneDisplay(phoneValue) : ''}
             onChange={(e) => {
               const normalized = normalizeUzPhone(e.target.value)
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-              ;(register('phone').onChange as any)({
-                target: { value: normalized, name: 'phone' },
-              })
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                ; (register('phone').onChange as any)({
+                  target: { value: normalized, name: 'phone' },
+                })
             }}
             onBlur={() => {
               const normalized = normalizeUzPhone(phoneValue ?? '')
@@ -167,6 +167,16 @@ export function PatientFormSection({
               </MenuItem>
             ))}
           </TextField>
+        </Grid>
+        <Grid size={12}>
+          <TextField
+            label="ПИНФЛ (ID паспорта)"
+            fullWidth
+            placeholder="14 цифр"
+            {...register('pinfl')}
+            error={!!errors.pinfl}
+            helperText={errors.pinfl?.message}
+          />
         </Grid>
         <Grid size={12}>
           <TextField

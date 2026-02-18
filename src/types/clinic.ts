@@ -59,6 +59,7 @@ export interface Patient {
   phone: string
   districtId?: string
   address: string
+  pinfl?: string
 }
 
 export interface PatientCard {
@@ -93,6 +94,16 @@ export interface RegistrationDraft {
   subtotal: number
   discountAmount: number
   total: number
+  paymentMethod?: 'cash' | 'card' | 'debt'
+  paidAmount?: number
   createdAt: string
+}
+
+export interface IncomeEntry {
+  date: string
+  amount: number
+  description: string
+  paymentMethod?: 'cash' | 'card' | 'debt'
+  patientId?: string
 }
 
