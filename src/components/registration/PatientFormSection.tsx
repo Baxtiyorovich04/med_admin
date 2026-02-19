@@ -115,16 +115,22 @@ export function PatientFormSection({
           />
         </Grid>
         <Grid size={12}>
-          <FormControl error={!!errors.gender}>
-            <FormLabel>Пол *</FormLabel>
-            <RadioGroup row {...register('gender')}>
-              <FormControlLabel value="male" control={<Radio />} label="Мужской" />
-              <FormControlLabel value="female" control={<Radio />} label="Женский" />
-            </RadioGroup>
-            {errors.gender && (
-              <FormHelperText>{errors.gender.message as string}</FormHelperText>
+          <Controller
+            name="gender"
+            control={control}
+            render={({ field }) => (
+              <FormControl error={!!errors.gender}>
+                <FormLabel>Пол *</FormLabel>
+                <RadioGroup row {...field}>
+                  <FormControlLabel value="male" control={<Radio />} label="Мужской" />
+                  <FormControlLabel value="female" control={<Radio />} label="Женский" />
+                </RadioGroup>
+                {errors.gender && (
+                  <FormHelperText>{errors.gender.message as string}</FormHelperText>
+                )}
+              </FormControl>
             )}
-          </FormControl>
+          />
         </Grid>
         <Grid size={12}>
           <TextField

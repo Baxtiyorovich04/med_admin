@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Paper, Stack, Typography, ButtonGroup, TextField } from '@mui/material'
+import { Box, Button, Divider, Paper, Stack, Typography } from '@mui/material'
 import type { Discount, Service } from '../../types/clinic'
 import { formatCurrencyUZS } from '../../utils/format'
 import type { UseFormRegister, UseFormWatch, UseFormSetValue } from 'react-hook-form'
@@ -20,8 +20,6 @@ export function SelectedSummary({ selectedServiceIds, services, selectedDiscount
   const discountPercent = selectedDiscount?.percent ?? 0
   const discountAmount = Math.round((subtotal * discountPercent) / 100)
   const total = subtotal - discountAmount
-  const paymentMethod = watch('paymentMethod') ?? 'cash'
-  const paidAmount = watch('paidAmount') ?? 0
 
   return (
     <Paper
@@ -78,45 +76,9 @@ export function SelectedSummary({ selectedServiceIds, services, selectedDiscount
           <Typography variant="subtitle2">{formatCurrencyUZS(total)}</Typography>
         </Box>
 
-        <Box>
-          <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-            <ButtonGroup variant="outlined" size="small">
-              <Button
-                variant={paymentMethod === 'cash' ? 'contained' : 'outlined'}
-                onClick={() => setValue('paymentMethod', 'cash')}
-              >
-                Нал
-              </Button>
-              <Button
-                variant={paymentMethod === 'card' ? 'contained' : 'outlined'}
-                onClick={() => setValue('paymentMethod', 'card')}
-              >
-                Карта
-              </Button>
-              <Button
-                variant={paymentMethod === 'debt' ? 'contained' : 'outlined'}
-                onClick={() => setValue('paymentMethod', 'debt')}
-              >
-                В кредит
-              </Button>
-            </ButtonGroup>
-          </Box>
-
-          <TextField
-            label="Оплачено"
-            size="small"
-            type="number"
-            value={paidAmount}
-            onChange={(e) => setValue('paidAmount', Number(e.target.value))}
-            helperText="Сумма, внесённая сейчас"
-            sx={{ mb: 1 }}
-            fullWidth
-          />
-
-          <Button variant="outlined" color="inherit" size="small" onClick={onClear}>
-            Очистить выбор
-          </Button>
-        </Box>
+        <Button variant="outlined" color="inherit" size="small" onClick={onClear}>
+          Очистить выбор
+        </Button>
       </Stack>
     </Paper>
   )

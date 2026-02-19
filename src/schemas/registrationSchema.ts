@@ -8,6 +8,8 @@ export const registrationSchema = z
     birthDate: z.string().min(1, 'Укажите дату рождения'),
     gender: z.enum(['male', 'female'], {
       required_error: 'Выберите пол',
+    }).nullable().refine((val) => val !== null, {
+      message: 'Выберите пол',
     }),
     phone: z
       .string()
@@ -33,8 +35,6 @@ export const registrationSchema = z
     specialtyId: z.string(),
     doctorId: z.string().optional().or(z.literal('')),
     selectedServiceIds: z.array(z.string()),
-    paymentMethod: z.enum(['cash', 'card', 'debt']).optional(),
-    paidAmount: z.number().min(0).optional(),
   })
   .superRefine((data, ctx) => {
     if (data.hasReferral && !data.referralDoctorId) {
