@@ -303,6 +303,90 @@
       "districtId": "dist_yunusabad",
       "address": "Юнусабад, 1-й мкр, дом 18",
       "pinfl": "55667788990011"
+    },
+    {
+      "id": "pat_2006",
+      "lastName": "Қодиров",
+      "firstName": "Илхам",
+      "middleName": "Намойатович",
+      "gender": "male",
+      "birthDate": "1990-05-20",
+      "phone": "+998933334455",
+      "districtId": "dist_sergeli",
+      "address": "Сергелий, 2-й квартал, дом 22",
+      "pinfl": "22334455667788"
+    },
+    {
+      "id": "pat_2007",
+      "lastName": "Ғофурова",
+      "firstName": "Зебо",
+      "middleName": "Фарухжоновна",
+      "gender": "female",
+      "birthDate": "1998-08-14",
+      "phone": "+998934445566",
+      "districtId": "dist_yunusabad",
+      "address": "Юнусабад, 10-й мкр, дом 5",
+      "pinfl": "33445566778899"
+    },
+    {
+      "id": "pat_2008",
+      "lastName": "Норов",
+      "firstName": "Дилмурод",
+      "middleName": "Рашидович",
+      "gender": "male",
+      "birthDate": "1987-12-03",
+      "phone": "+998991112233",
+      "districtId": "dist_mirabad",
+      "address": "Мирабад, ул. Фергана, дом 50",
+      "pinfl": "44556677889900"
+    },
+    {
+      "id": "pat_2009",
+      "lastName": "Абдуллаева",
+      "firstName": "София",
+      "middleName": "Батировна",
+      "gender": "female",
+      "birthDate": "1993-06-28",
+      "phone": "+998932223344",
+      "districtId": "dist_chilanzar",
+      "address": "Чиланзар, 18-й мкр, дом 12",
+      "pinfl": "55667788990012"
+    },
+    {
+      "id": "pat_2010",
+      "lastName": "Раимов",
+      "firstName": "Камол",
+      "middleName": "Мирзаевич",
+      "gender": "male",
+      "birthDate": "1980-01-15",
+      "phone": "+998903334455",
+      "districtId": "dist_yunusabad",
+      "address": "Юнусабад, 6-й мкр, дом 33",
+      "pinfl": "66778899001122"
+    },
+    {
+      "id": "pat_2011",
+      "lastName": "Ташмухамедова",
+      "firstName": "Гулнора",
+      "middleName": "Журабаевна",
+      "gender": "female",
+      "birthDate": "1996-09-07",
+      "phone": "+998931113344",
+      "districtId": "dist_sergeli",
+      "address": "Сергелий, 3-й квартал, дом 67",
+      "pinfl": "77889900112233"
+    },
+    {
+      "id": "pat_2012",
+      "lastName": "Гафуров",
+      "firstName": "Шахрух",
+      "middleName": "Шухратович",
+      "gender": "male",
+      "birthDate": "1989-11-22",
+      "phone": "+998902225566",
+      "districtId": "dist_mirabad",
+      "address": "Мирабад, ул. Шоти, дом 88",
+      "pinfl": "88990011223344"
     }
   ],
   "patientCards": [
@@ -380,6 +464,69 @@
       "description": "Услуги",
       "paymentMethod": "card",
       "patientId": "pat_2004"
+    },
+    {
+      "date": "2026-02-19",
+      "amount": 2700000,
+      "description": "УЗИ",
+      "paymentMethod": "cash",
+      "patientId": "pat_2006"
+    },
+    {
+      "date": "2026-02-18",
+      "amount": 3100000,
+      "description": "Консультации",
+      "paymentMethod": "card",
+      "patientId": "pat_2007"
+    },
+    {
+      "date": "2026-02-17",
+      "amount": 2450000,
+      "description": "Услуги",
+      "paymentMethod": "debt",
+      "patientId": "pat_2008"
+    },
+    {
+      "date": "2026-02-16",
+      "amount": 3600000,
+      "description": "Диагностика",
+      "paymentMethod": "cash",
+      "patientId": "pat_2009"
+    },
+    {
+      "date": "2026-02-15",
+      "amount": 2800000,
+      "description": "Процедуры",
+      "paymentMethod": "card",
+      "patientId": "pat_2010"
+    },
+    {
+      "date": "2026-02-14",
+      "amount": 3200000,
+      "description": "Услуги",
+      "paymentMethod": "debt",
+      "patientId": "pat_2010"
+    },
+    {
+      "date": "2026-02-13",
+      "amount": 2950000,
+      "description": "Консультации",
+      "paymentMethod": "cash",
+      "patientId": "pat_2011"
+    },
+    {
+      "date": "2026-02-12",
+      "amount": 3400000,
+      "description": "УЗИ",
+      "paymentMethod": "card",
+      "patientId": "pat_2012"
+    },
+    {
+      "date": "2026-02-11",
+      "amount": 2600000,
+      "description": "Процедуры",
+      "paymentMethod": "cash",
+      "patientId": "pat_2012"
     }
   ]
 }

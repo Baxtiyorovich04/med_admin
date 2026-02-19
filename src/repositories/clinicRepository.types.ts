@@ -24,6 +24,7 @@ export interface ClinicRepository {
   getDictionaries(): Promise<Dictionaries>
   getDoctors(): Promise<Doctor[]>
   getServices(): Promise<Service[]>
+  getPatients(): Promise<Patient[]>
 
   searchPatientsByPhone(phone: string): Promise<Patient[]>
   createOrUpdatePatient(patient: Omit<Patient, 'id'> & Partial<Pick<Patient, 'id'>>): Promise<Patient>

@@ -107,3 +107,11 @@ export interface IncomeEntry {
   patientId?: string
 }
 
+export interface IncomeEntry {
+  date: string
+  amount: number
+  description: string
+  paymentMethod?: 'cash' | 'card' | 'debt'
+  patientId?: string
+}
+

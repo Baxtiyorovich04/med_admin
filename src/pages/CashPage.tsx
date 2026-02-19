@@ -4,6 +4,7 @@ import {
   ButtonGroup,
   Card,
   CardContent,
+  CardHeader,
   Dialog,
   DialogActions,
   DialogContent,
@@ -19,12 +20,24 @@ import {
   TableRow,
   TextField,
   Typography,
+  Alert,
 } from '@mui/material'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import dayjs from 'dayjs'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts'
 import { clinicMockRepository } from '../repositories/clinicRepository.mock'
-import type { RegistrationDraft, Patient, Service, Doctor, Meta } from '../types/clinic'
+import type { RegistrationDraft, Patient, Service, Doctor, Meta, IncomeEntry } from '../types/clinic'
 
 interface LocationState {
   registrationDraftId?: string
@@ -44,6 +57,9 @@ export function CashPage() {
   const [isPaid, setIsPaid] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'debt'>('cash')
   const [receiptOpen, setReceiptOpen] = useState(false)
+  const [incomeData, setIncomeData] = useState<IncomeEntry[]>([])
+  const [patients, setPatients] = useState<Patient[]>([])
+  const [meta, setMeta] = useState<Meta | null>(null)
 
   const state = location.state as LocationState | null
   const registrationDraftId = state?.registrationDraftId
@@ -60,13 +76,227 @@ export function CashPage() {
         // fallback
       }
     }
-  }, [])
 
+    // Load income and patient data for dashboard
+    const loadData = async () => {
+      try {
+        const patientsData = await clinicMockRepository.getPatients()
+        setPatients(patientsData)
+        const dictionaries = await clinicMockRepository.getDictionaries()
+        setMeta(dictionaries.meta)
+
+        // Try to fetch income data
+        try {
+          const response = await fetch('/db.json')
+          if (response.ok) {
+            const dbDataFetch = await response.json()
+            setIncomeData(dbDataFetch.income || [])
+          }
+        } catch {
+          setIncomeData([])
+        }
+      } catch (error) {
+        console.error('Error loading dashboard data:', error)
+      }
+    }
+
+    if (!registrationDraftId) {
+      loadData()
+    }
+  }, [registrationDraftId])
+
+  // Show dashboard when no registration ID
   if (!registrationDraftId) {
+    const dailyIncome = useMemo(() => {
+      const data: Record<string, { date: string; cash: number; card: number; debt: number }> = {}
+
+      // Last 7 days
+      for (let i = 6; i >= 0; i--) {
+        const date = dayjs().subtract(i, 'days')
+        const dateStr = date.format('YYYY-MM-DD')
+        data[dateStr] = { date: date.format('ddd'), cash: 0, card: 0, debt: 0 }
+      }
+
+      incomeData.forEach((entry) => {
+        const dateStr = entry.date.substring(0, 10)
+        if (data[dateStr]) {
+          data[dateStr][entry.paymentMethod || 'cash'] += entry.amount
+        }
+      })
+
+      return Object.values(data)
+    }, [incomeData])
+
+    const totals = useMemo(() => {
+      return {
+        cash: incomeData
+          .filter((e) => e.paymentMethod === 'cash')
+          .reduce((sum, e) => sum + e.amount, 0),
+        card: incomeData
+          .filter((e) => e.paymentMethod === 'card')
+          .reduce((sum, e) => sum + e.amount, 0),
+        debt: incomeData.filter((e) => e.paymentMethod === 'debt').reduce((sum, e) => sum + e.amount, 0),
+        total: incomeData.reduce((sum, e) => sum + e.amount, 0),
+      }
+    }, [incomeData])
+
+    const formatCurrency = (value: number) => {
+      return new Intl.NumberFormat('ru-RU', {
+        style: 'currency',
+        currency: meta?.currency || 'UZS',
+        minimumFractionDigits: 0,
+      }).format(value)
+    }
+
+    const enrichedIncome = incomeData.map((entry) => {
+      const patient = patients.find((p) => p.id === entry.patientId)
+      return {
+        ...entry,
+        patientName: patient ? `${patient.lastName} ${patient.firstName}` : 'Unknown',
+      }
+    })
+
     return (
-      <Typography color="error">
-        Ошибка: ID регистрации не найден. Пожалуйста, вернитесь на страницу регистрации.
-      </Typography>
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold' }}>
+          Касса - Управление платежами
+        </Typography>
+
+        <Alert severity="info" sx={{ mb: 4 }}>
+          <Typography variant="body2">
+            <strong>Нет активной регистрации.</strong> Создайте новую регистрацию на{' '}
+            <Button
+              size="small"
+              variant="text"
+              onClick={() => navigate('/registration')}
+              sx={{ textDecoration: 'underline', p: 0 }}
+            >
+              странице регистрации
+            </Button>
+            {', '}чтобы обработать платеж.
+          </Typography>
+        </Alert>
+
+        {/* Summary Cards */}
+        <Grid container spacing={2} sx={{ mb: 4 }}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Card>
+              <CardContent>
+                <Typography color="textSecondary" gutterBottom>
+                  Всего собрано
+                </Typography>
+                <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
+                  {formatCurrency(totals.total)}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Card>
+              <CardContent>
+                <Typography color="textSecondary" gutterBottom>
+                  Наличные
+                </Typography>
+                <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#388e3c' }}>
+                  {formatCurrency(totals.cash)}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Card>
+              <CardContent>
+                <Typography color="textSecondary" gutterBottom>
+                  Карта
+                </Typography>
+                <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0288d1' }}>
+                  {formatCurrency(totals.card)}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Card>
+              <CardContent>
+                <Typography color="textSecondary" gutterBottom>
+                  Задолж.
+                </Typography>
+                <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#d32f2f' }}>
+                  {formatCurrency(totals.debt)}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {/* Daily Income Chart */}
+        {dailyIncome.length > 0 && (
+          <Card sx={{ mb: 4 }}>
+            <CardHeader title="Доход за последние 7 дней" />
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={dailyIncome}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                  <Legend />
+                  <Bar dataKey="cash" stackId="a" fill="#82ca9d" name="Наличные" />
+                  <Bar dataKey="card" stackId="a" fill="#8884d8" name="Карта" />
+                  <Bar dataKey="debt" stackId="a" fill="#ffc658" name="Долг" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Recent Transactions */}
+        {enrichedIncome.length > 0 && (
+          <Card>
+            <CardHeader title={`Последние платежи (${enrichedIncome.length} всего)`} />
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                    <TableCell>Дата</TableCell>
+                    <TableCell>Пациент</TableCell>
+                    <TableCell>Описание</TableCell>
+                    <TableCell align="right">Сумма</TableCell>
+                    <TableCell>Способ</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {enrichedIncome.slice(0, 10).map((entry, idx) => (
+                    <TableRow key={idx} hover>
+                      <TableCell>{dayjs(entry.date).format('DD.MM.YYYY')}</TableCell>
+                      <TableCell>{entry.patientName}</TableCell>
+                      <TableCell>{entry.description}</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                        {formatCurrency(entry.amount)}
+                      </TableCell>
+                      <TableCell>
+                        {entry.paymentMethod === 'cash'
+                          ? 'Наличные'
+                          : entry.paymentMethod === 'card'
+                            ? 'Карта'
+                            : 'Долг'}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Card>
+        )}
+
+        {incomeData.length === 0 && (
+          <Card>
+            <CardContent sx={{ textAlign: 'center', py: 6 }}>
+              <Typography color="textSecondary">Нет данных о платежах</Typography>
+            </CardContent>
+          </Card>
+        )}
+      </Box>
     )
   }
 

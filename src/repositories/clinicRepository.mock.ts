@@ -83,6 +83,11 @@ export const clinicMockRepository: ClinicRepository = {
     return db.services.filter((s) => s.active)
   },
 
+  async getPatients(): Promise<Patient[]> {
+    await delay()
+    return db.patients
+  },
+
   async searchPatientsByPhone(phone: string): Promise<Patient[]> {
     await delay()
     const normalized = phone.replace(/\D/g, '')
