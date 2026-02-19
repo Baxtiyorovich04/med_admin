@@ -1,0 +1,532 @@
+{
+    "meta": {
+        "clinicName": "Ishonch",
+        "currency": "UZS",
+        "timezone": "Asia/Tashkent"
+    },
+    "districts": [
+        {
+            "id": "dist_yunusabad",
+            "name": "Юнусабад"
+        },
+        {
+            "id": "dist_mirabad",
+            "name": "Мирабад"
+        },
+        {
+            "id": "dist_chilanzar",
+            "name": "Чиланзар"
+        },
+        {
+            "id": "dist_sergeli",
+            "name": "Сергелий"
+        }
+    ],
+    "discounts": [
+        {
+            "id": "disc_none",
+            "label": "без скидки",
+            "percent": 0
+        },
+        {
+            "id": "disc_10",
+            "label": "10%",
+            "percent": 10
+        },
+        {
+            "id": "disc_20",
+            "label": "20%",
+            "percent": 20
+        }
+    ],
+    "cardTypes": [
+        {
+            "id": "card_standard",
+            "name": "Стандарт"
+        },
+        {
+            "id": "card_child",
+            "name": "Детская"
+        }
+    ],
+    "specialties": [
+        {
+            "id": "spec_ent",
+            "name": "Лор"
+        },
+        {
+            "id": "spec_cardio",
+            "name": "Кардиолог"
+        },
+        {
+            "id": "spec_urology",
+            "name": "Уролог"
+        },
+        {
+            "id": "spec_pediatrics",
+            "name": "Педиатр"
+        },
+        {
+            "id": "spec_gyne",
+            "name": "Гинеколог"
+        },
+        {
+            "id": "spec_endo",
+            "name": "Эндокринолог"
+        },
+        {
+            "id": "spec_trauma_child",
+            "name": "Детского травматолога-ортопеда"
+        },
+        {
+            "id": "spec_neuropsy",
+            "name": "Нейропсихолог"
+        },
+        {
+            "id": "spec_neuro",
+            "name": "Невропатолог"
+        },
+        {
+            "id": "spec_andro",
+            "name": "Андролог"
+        },
+        {
+            "id": "spec_therapy",
+            "name": "Терапевт"
+        },
+        {
+            "id": "spec_surgery",
+            "name": "Хирург"
+        }
+    ],
+    "serviceCategories": [
+        {
+            "id": "cat_reception",
+            "name": "Прием"
+        },
+        {
+            "id": "cat_diagnostics",
+            "name": "Диагностика"
+        },
+        {
+            "id": "cat_med_plus",
+            "name": "мед плюс"
+        },
+        {
+            "id": "cat_lab",
+            "name": "Лаборатория"
+        },
+        {
+            "id": "cat_group",
+            "name": "Группа"
+        },
+        {
+            "id": "cat_inpatient",
+            "name": "Стационар"
+        }
+    ],
+    "doctors": [
+        {
+            "id": "doc_1001",
+            "fullName": "Абдуллаев Юсуф Абдуганиевич",
+            "specialtyId": "spec_ent",
+            "active": true,
+            "serviceIds": [
+                "srv_ent_consult",
+                "srv_ent_endoscopy",
+                "srv_ent_adenotomy",
+                "srv_ent_tonsillotomy",
+                "srv_ent_vasotomy",
+                "srv_ent_septoplasty"
+            ]
+        },
+        {
+            "id": "doc_1002",
+            "fullName": "Каримова Нилуфар Шухратовна",
+            "specialtyId": "spec_gyne",
+            "active": true,
+            "serviceIds": [
+                "srv_gyn_consult",
+                "srv_gyn_ultrasound"
+            ]
+        },
+        {
+            "id": "doc_1003",
+            "fullName": "Рахимов Бехруз Азизович",
+            "specialtyId": "spec_cardio",
+            "active": true,
+            "serviceIds": [
+                "srv_cardio_consult",
+                "srv_ecg"
+            ]
+        }
+    ],
+    "services": [
+        {
+            "id": "srv_ent_consult",
+            "categoryId": "cat_reception",
+            "specialtyId": "spec_ent",
+            "name": "ЛОР консультация",
+            "price": 100000,
+            "active": true
+        },
+        {
+            "id": "srv_ent_endoscopy",
+            "categoryId": "cat_diagnostics",
+            "specialtyId": "spec_ent",
+            "name": "Эндоскопия ЛОР-органов",
+            "price": 150000,
+            "active": true
+        },
+        {
+            "id": "srv_ent_adenotomy",
+            "categoryId": "cat_inpatient",
+            "specialtyId": "spec_ent",
+            "name": "Аденотомия",
+            "price": 3600000,
+            "active": true
+        },
+        {
+            "id": "srv_ent_tonsillotomy",
+            "categoryId": "cat_inpatient",
+            "specialtyId": "spec_ent",
+            "name": "Тонзиллотомия",
+            "price": 3800000,
+            "active": true
+        },
+        {
+            "id": "srv_ent_vasotomy",
+            "categoryId": "cat_inpatient",
+            "specialtyId": "spec_ent",
+            "name": "Вазотомия",
+            "price": 2400000,
+            "active": true
+        },
+        {
+            "id": "srv_ent_septoplasty",
+            "categoryId": "cat_inpatient",
+            "specialtyId": "spec_ent",
+            "name": "Септопластика",
+            "price": 7000000,
+            "active": true
+        },
+        {
+            "id": "srv_cardio_consult",
+            "categoryId": "cat_reception",
+            "specialtyId": "spec_cardio",
+            "name": "Кардиолог консультация",
+            "price": 120000,
+            "active": true
+        },
+        {
+            "id": "srv_ecg",
+            "categoryId": "cat_diagnostics",
+            "specialtyId": "spec_cardio",
+            "name": "ЭКГ",
+            "price": 90000,
+            "active": true
+        },
+        {
+            "id": "srv_gyn_consult",
+            "categoryId": "cat_reception",
+            "specialtyId": "spec_gyne",
+            "name": "Гинеколог консультация",
+            "price": 110000,
+            "active": true
+        },
+        {
+            "id": "srv_gyn_ultrasound",
+            "categoryId": "cat_diagnostics",
+            "specialtyId": "spec_gyne",
+            "name": "УЗИ (гинекология)",
+            "price": 160000,
+            "active": true
+        }
+    ],
+    "patients": [
+        {
+            "id": "pat_2001",
+            "lastName": "Ибрагимов",
+            "firstName": "Азиз",
+            "middleName": "Бахтиярович",
+            "gender": "male",
+            "birthDate": "1995-04-12",
+            "phone": "+998901112233",
+            "districtId": "dist_yunusabad",
+            "address": "Юнусабад, дом 12, кв 45",
+            "pinfl": "12345678901234"
+        },
+        {
+            "id": "pat_2002",
+            "lastName": "Саидова",
+            "firstName": "Мадина",
+            "middleName": "Рустамовна",
+            "gender": "female",
+            "birthDate": "2001-11-03",
+            "phone": "+998935556677",
+            "districtId": "dist_mirabad",
+            "pinfl": "98765432109876",
+            "address": "Мирабад, ул. ... дом 7"
+        },
+        {
+            "id": "pat_2003",
+            "lastName": "Усманов",
+            "firstName": "Марат",
+            "middleName": "Эргашевич",
+            "gender": "male",
+            "birthDate": "1988-07-25",
+            "phone": "+998901234567",
+            "districtId": "dist_chilanzar",
+            "address": "Чиланзар, 15-й мкр, дом 45",
+            "pinfl": "11223344556677"
+        },
+        {
+            "id": "pat_2004",
+            "lastName": "Юсупова",
+            "firstName": "Лилия",
+            "middleName": "Олеговна",
+            "gender": "female",
+            "birthDate": "1992-11-10",
+            "phone": "+998932145678",
+            "districtId": "dist_sergeli",
+            "address": "Сергелий, 1-й квартал, дом 33",
+            "pinfl": "98765432154321"
+        },
+        {
+            "id": "pat_2005",
+            "lastName": "Кучканов",
+            "firstName": "Руслан",
+            "middleName": "Ахмедович",
+            "gender": "male",
+            "birthDate": "1985-03-18",
+            "phone": "+998909876543",
+            "districtId": "dist_yunusabad",
+            "address": "Юнусабад, 1-й мкр, дом 18",
+            "pinfl": "55667788990011"
+        },
+        {
+            "id": "pat_2006",
+            "lastName": "Қодиров",
+            "firstName": "Илхам",
+            "middleName": "Намойатович",
+            "gender": "male",
+            "birthDate": "1990-05-20",
+            "phone": "+998933334455",
+            "districtId": "dist_sergeli",
+            "address": "Сергелий, 2-й квартал, дом 22",
+            "pinfl": "22334455667788"
+        },
+        {
+            "id": "pat_2007",
+            "lastName": "Ғофурова",
+            "firstName": "Зебо",
+            "middleName": "Фарухжоновна",
+            "gender": "female",
+            "birthDate": "1998-08-14",
+            "phone": "+998934445566",
+            "districtId": "dist_yunusabad",
+            "address": "Юнусабад, 10-й мкр, дом 5",
+            "pinfl": "33445566778899"
+        },
+        {
+            "id": "pat_2008",
+            "lastName": "Норов",
+            "firstName": "Дилмурод",
+            "middleName": "Рашидович",
+            "gender": "male",
+            "birthDate": "1987-12-03",
+            "phone": "+998991112233",
+            "districtId": "dist_mirabad",
+            "address": "Мирабад, ул. Фергана, дом 50",
+            "pinfl": "44556677889900"
+        },
+        {
+            "id": "pat_2009",
+            "lastName": "Абдуллаева",
+            "firstName": "София",
+            "middleName": "Батировна",
+            "gender": "female",
+            "birthDate": "1993-06-28",
+            "phone": "+998932223344",
+            "districtId": "dist_chilanzar",
+            "address": "Чиланзар, 18-й мкр, дом 12",
+            "pinfl": "55667788990012"
+        },
+        {
+            "id": "pat_2010",
+            "lastName": "Раимов",
+            "firstName": "Камол",
+            "middleName": "Мирзаевич",
+            "gender": "male",
+            "birthDate": "1980-01-15",
+            "phone": "+998903334455",
+            "districtId": "dist_yunusabad",
+            "address": "Юнусабад, 6-й мкр, дом 33",
+            "pinfl": "66778899001122"
+        },
+        {
+            "id": "pat_2011",
+            "lastName": "Ташмухамедова",
+            "firstName": "Гулнора",
+            "middleName": "Журабаевна",
+            "gender": "female",
+            "birthDate": "1996-09-07",
+            "phone": "+998931113344",
+            "districtId": "dist_sergeli",
+            "address": "Сергелий, 3-й квартал, дом 67",
+            "pinfl": "77889900112233"
+        },
+        {
+            "id": "pat_2012",
+            "lastName": "Гафуров",
+            "firstName": "Шахрух",
+            "middleName": "Шухратович",
+            "gender": "male",
+            "birthDate": "1989-11-22",
+            "phone": "+998902225566",
+            "districtId": "dist_mirabad",
+            "address": "Мирабад, ул. Шоти, дом 88",
+            "pinfl": "88990011223344"
+        }
+    ],
+    "patientCards": [
+        {
+            "id": "card_3001",
+            "patientId": "pat_2001",
+            "cardTypeId": "card_standard",
+            "cardNumber": "A-000245",
+            "openedAt": "2025-09-10",
+            "insurance": false,
+            "responsibleDoctorId": "doc_1001"
+        }
+    ],
+    "registrationDrafts": [],
+    "income": [
+        {
+            "date": "2026-02-10",
+            "amount": 2500000,
+            "description": "Консультации",
+            "paymentMethod": "cash",
+            "patientId": "pat_2001"
+        },
+        {
+            "date": "2026-02-11",
+            "amount": 3200000,
+            "description": "Услуги",
+            "paymentMethod": "card",
+            "patientId": "pat_2002"
+        },
+        {
+            "date": "2026-02-12",
+            "amount": 2800000,
+            "description": "Консультации",
+            "paymentMethod": "debt",
+            "patientId": "pat_2003"
+        },
+        {
+            "date": "2026-02-13",
+            "amount": 4100000,
+            "description": "Процедуры",
+            "paymentMethod": "card",
+            "patientId": "pat_2004"
+        },
+        {
+            "date": "2026-02-14",
+            "amount": 3500000,
+            "description": "Услуги",
+            "paymentMethod": "cash",
+            "patientId": "pat_2005"
+        },
+        {
+            "date": "2026-02-15",
+            "amount": 2900000,
+            "description": "Консультации",
+            "paymentMethod": "debt",
+            "patientId": "pat_2001"
+        },
+        {
+            "date": "2026-02-16",
+            "amount": 3800000,
+            "description": "Диагностика",
+            "paymentMethod": "card",
+            "patientId": "pat_2002"
+        },
+        {
+            "date": "2026-02-17",
+            "amount": 2600000,
+            "description": "Консультации",
+            "paymentMethod": "cash",
+            "patientId": "pat_2003"
+        },
+        {
+            "date": "2026-02-18",
+            "amount": 3300000,
+            "description": "Услуги",
+            "paymentMethod": "card",
+            "patientId": "pat_2004"
+        },
+        {
+            "date": "2026-02-19",
+            "amount": 2700000,
+            "description": "УЗИ",
+            "paymentMethod": "cash",
+            "patientId": "pat_2006"
+        },
+        {
+            "date": "2026-02-18",
+            "amount": 3100000,
+            "description": "Консультации",
+            "paymentMethod": "card",
+            "patientId": "pat_2007"
+        },
+        {
+            "date": "2026-02-17",
+            "amount": 2450000,
+            "description": "Услуги",
+            "paymentMethod": "debt",
+            "patientId": "pat_2008"
+        },
+        {
+            "date": "2026-02-16",
+            "amount": 3600000,
+            "description": "Диагностика",
+            "paymentMethod": "cash",
+            "patientId": "pat_2009"
+        },
+        {
+            "date": "2026-02-15",
+            "amount": 2800000,
+            "description": "Процедуры",
+            "paymentMethod": "card",
+            "patientId": "pat_2010"
+        },
+        {
+            "date": "2026-02-14",
+            "amount": 3200000,
+            "description": "Услуги",
+            "paymentMethod": "debt",
+            "patientId": "pat_2010"
+        },
+        {
+            "date": "2026-02-13",
+            "amount": 2950000,
+            "description": "Консультации",
+            "paymentMethod": "cash",
+            "patientId": "pat_2011"
+        },
+        {
+            "date": "2026-02-12",
+            "amount": 3400000,
+            "description": "УЗИ",
+            "paymentMethod": "card",
+            "patientId": "pat_2012"
+        },
+        {
+            "date": "2026-02-11",
+            "amount": 2600000,
+            "description": "Процедуры",
+            "paymentMethod": "cash",
+            "patientId": "pat_2012"
+        }
+    ]
+}

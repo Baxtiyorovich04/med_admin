@@ -1,4 +1,3 @@
-import dbJson from '../../db.json'
 import type {
   CardType,
   Discount,
@@ -29,22 +28,44 @@ type DbShape = {
 }
 
 const LOCAL_STORAGE_KEY = 'clinic_db_mock'
+let defaultDb: DbShape | null = null
 
-function loadInitialDb(): DbShape {
+async function loadDefaultDb(): Promise<DbShape> {
+  if (defaultDb) return defaultDb
+  try {
+    const response = await fetch('/db.json')
+    if (!response.ok) throw new Error('Failed to load db.json')
+    const data = await response.json() as DbShape
+    defaultDb = data
+    return data
+  } catch (error) {
+    console.error('Error loading db.json from public folder:', error)
+    throw error
+  }
+}
+
+async function loadInitialDb(): Promise<DbShape> {
   const fromStorage = window.localStorage.getItem(LOCAL_STORAGE_KEY)
   if (fromStorage) {
     try {
       return JSON.parse(fromStorage) as DbShape
     } catch {
-      // ignore parsing errors and fall back to bundled json
+      // ignore parsing errors and fall back to fetched json
     }
   }
-  return dbJson as DbShape
+  return loadDefaultDb()
 }
 
-let db: DbShape = loadInitialDb()
+let db: DbShape | null = null
+
+async function initializeDb(): Promise<DbShape> {
+  if (db) return db
+  db = await loadInitialDb()
+  return db
+}
 
 function persistDb() {
+  if (!db) return
   try {
     window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(db))
   } catch {
@@ -62,47 +83,53 @@ function generateId(prefix: string): string {
 
 export const clinicMockRepository: ClinicRepository = {
   async getDictionaries(): Promise<Dictionaries> {
+    const database = await initializeDb()
     await delay()
     return {
-      meta: db.meta,
-      districts: db.districts,
-      discounts: db.discounts,
-      cardTypes: db.cardTypes,
-      specialties: db.specialties,
-      serviceCategories: db.serviceCategories,
+      meta: database.meta,
+      districts: database.districts,
+      discounts: database.discounts,
+      cardTypes: database.cardTypes,
+      specialties: database.specialties,
+      serviceCategories: database.serviceCategories,
     }
   },
 
   async getDoctors(): Promise<Doctor[]> {
+    const database = await initializeDb()
     await delay()
-    return db.doctors.filter((d) => d.active)
+    return database.doctors.filter((d) => d.active)
   },
 
   async getServices(): Promise<Service[]> {
+    const database = await initializeDb()
     await delay()
-    return db.services.filter((s) => s.active)
+    return database.services.filter((s) => s.active)
   },
 
   async getPatients(): Promise<Patient[]> {
+    const database = await initializeDb()
     await delay()
-    return db.patients
+    return database.patients
   },
 
   async searchPatientsByPhone(phone: string): Promise<Patient[]> {
+    const database = await initializeDb()
     await delay()
     const normalized = phone.replace(/\D/g, '')
-    return db.patients.filter((p) => p.phone.replace(/\D/g, '') === normalized)
+    return database.patients.filter((p) => p.phone.replace(/\D/g, '') === normalized)
   },
 
   async createOrUpdatePatient(
     patient: Omit<Patient, 'id'> & Partial<Pick<Patient, 'id'>>,
   ): Promise<Patient> {
+    const database = await initializeDb()
     await delay()
     if (patient.id) {
-      const index = db.patients.findIndex((p) => p.id === patient.id)
+      const index = database.patients.findIndex((p) => p.id === patient.id)
       if (index >= 0) {
-        const updated: Patient = { ...db.patients[index], ...patient }
-        db.patients[index] = updated
+        const updated: Patient = { ...database.patients[index], ...patient }
+        database.patients[index] = updated
         persistDb()
         return updated
       }
@@ -112,7 +139,7 @@ export const clinicMockRepository: ClinicRepository = {
       ...patient,
       id: generateId('pat'),
     }
-    db.patients.push(created)
+    database.patients.push(created)
     persistDb()
     return created
   },
@@ -120,13 +147,14 @@ export const clinicMockRepository: ClinicRepository = {
   async createRegistrationDraft(
     draft: Omit<RegistrationDraft, 'id' | 'createdAt'>,
   ): Promise<RegistrationDraft> {
+    const database = await initializeDb()
     await delay()
     const created: RegistrationDraft = {
       ...draft,
       id: generateId('reg'),
       createdAt: new Date().toISOString(),
     }
-    db.registrationDrafts.push(created)
+    database.registrationDrafts.push(created)
     persistDb()
     return created
   },
