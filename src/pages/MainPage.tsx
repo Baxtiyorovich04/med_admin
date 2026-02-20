@@ -32,6 +32,8 @@ interface DbData {
   income: Array<{ date: string; amount: number; description: string; paymentMethod?: 'cash' | 'card' | 'debt'; patientId?: string }>
 }
 
+type FilterType = 'week' | 'month' | 'year'
+
 const StatCard = ({
   title,
   value,
@@ -84,33 +86,71 @@ const StatCard = ({
   </Card>
 )
 
-type FilterType = 'week' | 'month' | 'year'
-type MethodFilter = 'all' | 'cash' | 'card'
-
 const IncomeChart = ({ dbData }: { dbData: DbData }) => {
-  const [filter, setFilter] = useState<FilterType>('week')
-  const [method, setMethod] = useState<MethodFilter>('all')
+  const [filter, setFilter] = useState<FilterType>('month')
 
-  const filterIncomeData = (data: DbData['income'], filterType: FilterType) => {
-    const today = new Date('2026-02-18')
-    let startDate = new Date(today)
+  const getDateRange = (filterType: FilterType) => {
+    const today = new Date('2026-02-19')
 
-    if (filterType === 'week') startDate.setDate(today.getDate() - 7)
-    else if (filterType === 'month') startDate.setMonth(today.getMonth() - 1)
-    else startDate.setFullYear(today.getFullYear() - 1)
+    if (filterType === 'week') {
+      const dayOfWeek = today.getDay()
+      const startOfWeek = new Date(today)
+      startOfWeek.setDate(today.getDate() - dayOfWeek)
+      const endOfWeek = new Date(startOfWeek)
+      endOfWeek.setDate(startOfWeek.getDate() + 6)
+      return { start: startOfWeek, end: endOfWeek, label: `Неделя ${startOfWeek.toLocaleDateString('ru-RU')} - ${endOfWeek.toLocaleDateString('ru-RU')}` }
+    }
 
-    return data.filter((item) => {
-      const itemDate = new Date(item.date)
-      return itemDate >= startDate && itemDate <= today
-    })
+    if (filterType === 'month') {
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+      return { start: startOfMonth, end: endOfMonth, label: `Февраль ${today.getFullYear()}` }
+    }
+
+    // Year
+    const startOfYear = new Date(today.getFullYear(), 0, 1)
+    const endOfYear = new Date(today.getFullYear(), 11, 31)
+    return { start: startOfYear, end: endOfYear, label: `${today.getFullYear()}` }
   }
 
-  const chartData = filterIncomeData(dbData.income, filter)
-  const nonDebtData = chartData.filter((d) => d.paymentMethod !== 'debt')
-  const filteredByMethod = method === 'all' ? nonDebtData : nonDebtData.filter((d) => d.paymentMethod === method)
-  const totalIncome = filteredByMethod.reduce((sum, item) => sum + item.amount, 0)
+  const getAllDatesInRange = (start: Date, end: Date) => {
+    const dates: string[] = []
+    const current = new Date(start)
+    while (current <= end) {
+      const year = current.getFullYear()
+      const month = String(current.getMonth() + 1).padStart(2, '0')
+      const day = String(current.getDate()).padStart(2, '0')
+      dates.push(`${year}-${month}-${day}`)
+      current.setDate(current.getDate() + 1)
+    }
+    return dates
+  }
 
-  const debtData = chartData.filter((d) => d.paymentMethod === 'debt')
+  const range = getDateRange(filter)
+  const allDates = getAllDatesInRange(range.start, range.end)
+
+  const filterIncomeData = (data: DbData['income']) => {
+    const nonDebtData = data.filter((item) => item.paymentMethod !== 'debt')
+    const incomeByDate: Record<string, number> = {}
+
+    nonDebtData.forEach((item) => {
+      incomeByDate[item.date] = (incomeByDate[item.date] || 0) + item.amount
+    })
+
+    return allDates.map((date) => ({
+      date,
+      displayDate: new Date(date).toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric' }),
+      amount: incomeByDate[date] || 0,
+    }))
+  }
+
+  const chartData = filterIncomeData(dbData.income)
+  const totalIncome = chartData.reduce((sum, item) => sum + item.amount, 0)
+
+  const debtData = dbData.income.filter((d) => {
+    const itemDate = new Date(d.date)
+    return itemDate >= range.start && itemDate <= range.end && d.paymentMethod === 'debt'
+  })
   const totalDebt = debtData.reduce((sum, item) => sum + item.amount, 0)
 
   return (
@@ -122,36 +162,27 @@ const IncomeChart = ({ dbData }: { dbData: DbData }) => {
             <Typography variant="h4" sx={{ color: '#26c485', fontWeight: 700 }}>
               {new Intl.NumberFormat('ru-RU', { style: 'currency', currency: dbData.meta.currency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalIncome)}
             </Typography>
+            <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5, display: 'block' }}>
+              Доход за {range.label}
+            </Typography>
           </Box>
 
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-            <ButtonGroup size="small" variant="outlined">
-              <Button onClick={() => setFilter('week')} variant={filter === 'week' ? 'contained' : 'outlined'}>Неделя</Button>
-              <Button onClick={() => setFilter('month')} variant={filter === 'month' ? 'contained' : 'outlined'}>Месяц</Button>
-              <Button onClick={() => setFilter('year')} variant={filter === 'year' ? 'contained' : 'outlined'}>Год</Button>
-            </ButtonGroup>
-
-            <ButtonGroup size="small" variant="outlined">
-              <Button onClick={() => setMethod('all')} variant={method === 'all' ? 'contained' : 'outlined'}>Все</Button>
-              <Button onClick={() => setMethod('cash')} variant={method === 'cash' ? 'contained' : 'outlined'}>Нал</Button>
-              <Button onClick={() => setMethod('card')} variant={method === 'card' ? 'contained' : 'outlined'}>Карта</Button>
-            </ButtonGroup>
-          </Box>
+          <ButtonGroup size="small" variant="outlined">
+            <Button onClick={() => setFilter('week')} variant={filter === 'week' ? 'contained' : 'outlined'}>Неделя</Button>
+            <Button onClick={() => setFilter('month')} variant={filter === 'month' ? 'contained' : 'outlined'}>Месяц</Button>
+            <Button onClick={() => setFilter('year')} variant={filter === 'year' ? 'contained' : 'outlined'}>Год</Button>
+          </ButtonGroup>
         </Box>
 
         <Paper variant="outlined" sx={{ p: 2, bgcolor: '#f8fafc', borderColor: '#e2e8f0' }}>
           <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={filteredByMethod}>
+            <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="date" stroke="#64748b" tick={{ fontSize: 12 }} />
+              <XAxis dataKey={filter === 'year' ? 'date' : 'displayDate'} stroke="#64748b" tick={{ fontSize: 12 }} angle={filter === 'year' ? -45 : 0} />
               <YAxis stroke="#64748b" tick={{ fontSize: 12 }} />
               <Tooltip contentStyle={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }} formatter={(value: any) => (typeof value === 'number' ? new Intl.NumberFormat('ru-RU', { style: 'currency', currency: dbData.meta.currency, minimumFractionDigits: 0 }).format(value) : value)} />
               <Legend />
-              <Bar dataKey="amount" radius={[8, 8, 0, 0]}>
-                {filteredByMethod.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.paymentMethod === 'card' ? '#3b82f6' : '#26c485'} />
-                ))}
-              </Bar>
+              <Bar dataKey="amount" name="Доход" fill="#26c485" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </Paper>
@@ -220,7 +251,7 @@ const PatientsChart = ({ dbData }: { dbData: DbData }) => {
   const [filter, setFilter] = useState<FilterType>('week')
 
   const filterIncomeData = (data: DbData['income'], filterType: FilterType) => {
-    const today = new Date('2026-02-18')
+    const today = new Date('2026-02-19')
     let startDate = new Date(today)
 
     if (filterType === 'week') {

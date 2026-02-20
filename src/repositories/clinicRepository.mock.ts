@@ -160,5 +160,12 @@ export const clinicMockRepository: ClinicRepository = {
   },
 }
 
-// TODO: заменить mock‑реализацию на реальные HTTP‑запросы к backend API
+export const clinicRepository = {
+  ...clinicMockRepository,
+
+  // Extra method for SettingsPage
+  async loadDb() {
+    return await initializeDb()
+  },
+}
 
