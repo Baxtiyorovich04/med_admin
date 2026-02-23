@@ -38,12 +38,15 @@ import {
 } from 'recharts'
 import { DatePicker } from '@mui/x-date-pickers'
 import dayjs, { Dayjs } from 'dayjs'
+import isBetween from 'dayjs/plugin/isBetween'
+
+dayjs.extend(isBetween)
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import * as XLSX from 'xlsx'
-import { Document, Packer, Paragraph, Table as DocTable, TableRow as DocTableRow, TableCell as DocTableCell, VerticalAlign, AlignmentType, BorderStyle } from 'docx'
+import { Document, Packer, Paragraph, TextRun, Table as DocTable, TableRow as DocTableRow, TableCell as DocTableCell, VerticalAlign, AlignmentType } from 'docx'
 import { saveAs } from 'file-saver'
 import { clinicMockRepository } from '../repositories/clinicRepository.mock'
-import type { IncomeEntry, Patient, Meta } from '../types/clinic'
+import type { IncomeEntry, Patient, Meta, Doctor } from '../types/clinic'
 
 interface IncomeData extends IncomeEntry {
   patientName?: string
@@ -57,6 +60,7 @@ export function ReportsPage() {
   const [endDate, setEndDate] = useState<Dayjs>(dayjs())
   const [incomeData, setIncomeData] = useState<IncomeData[]>([])
   const [patients, setPatients] = useState<Patient[]>([])
+  const [doctors, setDoctors] = useState<Doctor[]>([])
   const [meta, setMeta] = useState<Meta | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -69,32 +73,25 @@ export function ReportsPage() {
         setLoading(true)
         setError(null)
 
-        const [patientsData, dictionaries] = await Promise.all([
+        const [patientsData, dictionaries, incomeRaw, doctorsData] = await Promise.all([
           clinicMockRepository.getPatients(),
           clinicMockRepository.getDictionaries(),
+          clinicMockRepository.getIncome(),
+          clinicMockRepository.getDoctors(),
         ])
         setPatients(patientsData)
         setMeta(dictionaries.meta)
-
-        // Try to fetch income data from db.json
-        try {
-          const response = await fetch('/db.json')
-          if (!response.ok) throw new Error('Failed to load db.json')
-          const dbData = await response.json()
-          const enrichedIncome = (dbData.income || []).map((entry: IncomeEntry) => {
-            const patient = patientsData.find((p) => p.id === entry.patientId)
-            return {
-              ...entry,
-              patientName: patient
-                ? `${patient.lastName} ${patient.firstName}`
-                : 'Unknown',
-            }
-          })
-          setIncomeData(enrichedIncome)
-        } catch (fetchError) {
-          console.warn('Could not load income data from db.json:', fetchError)
-          setIncomeData([])
-        }
+        setDoctors(doctorsData)
+        const enrichedIncome = (incomeRaw || []).map((entry: IncomeEntry) => {
+          const patient = patientsData.find((p) => p.id === entry.patientId)
+          return {
+            ...entry,
+            patientName: patient
+              ? `${patient.lastName} ${patient.firstName}`
+              : 'Unknown',
+          }
+        })
+        setIncomeData(enrichedIncome)
 
         setLoading(false)
       } catch (error) {
@@ -170,6 +167,50 @@ export function ReportsPage() {
     { name: 'Карта', value: totals.card },
     { name: 'Долг', value: totals.debt },
   ]
+
+  // Доход по врачам: кумулятивный по дням для графика и итого по каждому врачу
+  const defaultDoctorId = doctors[0]?.id ?? 'doc_1001'
+  const getDoctorName = (doctorId: string | undefined) => {
+    const id = doctorId || defaultDoctorId
+    return doctors.find((d) => d.id === id)?.fullName ?? id
+  }
+  const doctorCumulativeData = useMemo(() => {
+    const doctorNames = new Set<string>()
+    filteredData.forEach((e) => doctorNames.add(getDoctorName(e.doctorId)))
+    const sortedDates: string[] = []
+    let current = startDate.clone()
+    while (current.isBefore(endDate) || current.isSame(endDate)) {
+      sortedDates.push(current.format('YYYY-MM-DD'))
+      current = current.add(1, 'day')
+    }
+    const result: Array<Record<string, string | number>> = []
+    const cumulative: Record<string, number> = {}
+    doctorNames.forEach((name) => (cumulative[name] = 0))
+    for (const dateStr of sortedDates) {
+      const dayEntries = filteredData.filter((e) => e.date.substring(0, 10) === dateStr)
+      dayEntries.forEach((e) => {
+        const name = getDoctorName(e.doctorId)
+        cumulative[name] = (cumulative[name] ?? 0) + e.amount
+      })
+      result.push({
+        date: dayjs(dateStr).format('ddd DD'),
+        ...{ ...cumulative },
+      })
+    }
+    return result
+  }, [filteredData, startDate, endDate, doctors])
+  const doctorTotalBars = useMemo(() => {
+    const byDoctor: Record<string, number> = {}
+    filteredData.forEach((e) => {
+      const name = getDoctorName(e.doctorId)
+      byDoctor[name] = (byDoctor[name] ?? 0) + e.amount
+    })
+    return Object.entries(byDoctor)
+      .map(([name, value]) => ({ name, value }))
+      .filter((d) => d.value > 0)
+      .sort((a, b) => b.value - a.value)
+  }, [filteredData, doctors])
+  const DOCTOR_CHART_COLORS = ['#26c485', '#667eea', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6']
 
   const handleSetWeekly = () => {
     setFilterType('week')
@@ -269,7 +310,7 @@ export function ReportsPage() {
       return new DocTable({
         rows: [
           new DocTableRow({
-            cells: headers.map(
+            children: headers.map(
               (header) =>
                 new DocTableCell({
                   children: [new Paragraph(header)],
@@ -281,7 +322,7 @@ export function ReportsPage() {
           ...data.map(
             (row) =>
               new DocTableRow({
-                cells: row.map(
+                children: row.map(
                   (cell) =>
                     new DocTableCell({
                       children: [new Paragraph(String(cell))],
@@ -297,22 +338,17 @@ export function ReportsPage() {
 
     const sections = [
       new Paragraph({
-        text: 'ФИНАНСОВЫЙ ОТЧЕТ',
-        bold: true,
-        size: 28,
+        children: [new TextRun({ text: 'ФИНАНСОВЫЙ ОТЧЕТ', bold: true, size: 28 })],
         alignment: AlignmentType.CENTER,
       }),
       new Paragraph({
-        text: `Период: ${startDate.format('DD.MM.YYYY')} - ${endDate.format('DD.MM.YYYY')}`,
-        size: 22,
+        children: [new TextRun({ text: `Период: ${startDate.format('DD.MM.YYYY')} - ${endDate.format('DD.MM.YYYY')}`, size: 22 })],
         alignment: AlignmentType.CENTER,
         spacing: { after: 400 },
       }),
 
       new Paragraph({
-        text: 'РЕЗЮМЕ',
-        bold: true,
-        size: 24,
+        children: [new TextRun({ text: 'РЕЗЮМЕ', bold: true, size: 24 })],
         spacing: { before: 200, after: 200 },
       }),
       createTable(
@@ -326,9 +362,7 @@ export function ReportsPage() {
       ),
 
       new Paragraph({
-        text: 'ПО ДНЯМ',
-        bold: true,
-        size: 24,
+        children: [new TextRun({ text: 'ПО ДНЯМ', bold: true, size: 24 })],
         spacing: { before: 400, after: 200 },
       }),
       createTable(
@@ -343,9 +377,7 @@ export function ReportsPage() {
       ),
 
       new Paragraph({
-        text: 'ВСЕ ТРАНЗАКЦИИ',
-        bold: true,
-        size: 24,
+        children: [new TextRun({ text: 'ВСЕ ТРАНЗАКЦИИ', bold: true, size: 24 })],
         spacing: { before: 400, after: 200 },
       }),
       createTable(
@@ -367,14 +399,11 @@ export function ReportsPage() {
     if (debtEntries.length > 0) {
       sections.push(
         new Paragraph({
-          text: 'ЗАДОЛЖЕННОСТЬ',
-          bold: true,
-          size: 24,
+          children: [new TextRun({ text: 'ЗАДОЛЖЕННОСТЬ', bold: true, size: 24 })],
           spacing: { before: 400, after: 200 },
         }),
         new Paragraph({
-          text: `Всего задолженности: ${formatCurrency(totals.debt)}`,
-          bold: true,
+          children: [new TextRun({ text: `Всего задолженности: ${formatCurrency(totals.debt)}`, bold: true })],
           spacing: { after: 200 },
         }),
         createTable(
@@ -391,9 +420,7 @@ export function ReportsPage() {
 
     sections.push(
       new Paragraph({
-        text: `Дата создания: ${dayjs().format('DD.MM.YYYY HH:mm')}`,
-        size: 18,
-        color: '999999',
+        children: [new TextRun({ text: `Дата создания: ${dayjs().format('DD.MM.YYYY HH:mm')}`, size: 18, color: '999999' })],
         spacing: { before: 400 },
       }),
     )
@@ -620,41 +647,36 @@ export function ReportsPage() {
               </Card>
             </Grid>
 
-            {/* Cumulative Income Line Chart */}
+            {/* Cumulative Income by Doctor */}
             <Grid size={{ xs: 12 }}>
               <Card>
-                <CardHeader title="Кумулятивный доход" />
+                <CardHeader title="Кумулятивный доход по врачам" />
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={dailyData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" angle={-45} textAnchor="end" height={80} />
-                      <YAxis />
-                      <Tooltip formatter={(value) => formatCurrency(value as number)} />
-                      <Legend />
-                      <Line
-                        type="monotone"
-                        dataKey="cash"
-                        stroke="#82ca9d"
-                        name="Наличные"
-                        dot={false}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="card"
-                        stroke="#8884d8"
-                        name="Карта"
-                        dot={false}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="debt"
-                        stroke="#ffc658"
-                        name="Долг"
-                        dot={false}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  {doctorCumulativeData.length > 0 && doctorTotalBars.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={doctorCumulativeData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" angle={-45} textAnchor="end" height={80} />
+                        <YAxis />
+                        <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                        <Legend />
+                        {doctorTotalBars.map((d, idx) => (
+                          <Line
+                            key={d.name}
+                            type="monotone"
+                            dataKey={d.name}
+                            stroke={DOCTOR_CHART_COLORS[idx % DOCTOR_CHART_COLORS.length]}
+                            name={d.name}
+                            dot={false}
+                          />
+                        ))}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <Typography color="text.secondary" sx={{ py: 4, textAlign: 'center' }}>
+                      Нет данных о доходах по врачам за выбранный период. Доход по врачам появляется после оплаты регистраций, где при выборе услуг указан врач.
+                    </Typography>
+                  )}
                 </CardContent>
               </Card>
             </Grid>

@@ -105,13 +105,7 @@ export interface IncomeEntry {
   description: string
   paymentMethod?: 'cash' | 'card' | 'debt'
   patientId?: string
-}
-
-export interface IncomeEntry {
-  date: string
-  amount: number
-  description: string
-  paymentMethod?: 'cash' | 'card' | 'debt'
-  patientId?: string
+  /** Врач, которому приписан этот доход (по выбранным услугам при регистрации) */
+  doctorId?: string
 }
 

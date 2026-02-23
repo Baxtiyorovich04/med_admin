@@ -3,6 +3,7 @@ import type {
   Discount,
   Doctor,
   District,
+  IncomeEntry,
   Meta,
   Patient,
   PatientCard,
@@ -25,6 +26,7 @@ type DbShape = {
   patients: Patient[]
   patientCards: PatientCard[]
   registrationDrafts: RegistrationDraft[]
+  income: IncomeEntry[]
 }
 
 const LOCAL_STORAGE_KEY = 'clinic_db_mock'
@@ -48,12 +50,16 @@ async function loadInitialDb(): Promise<DbShape> {
   const fromStorage = window.localStorage.getItem(LOCAL_STORAGE_KEY)
   if (fromStorage) {
     try {
-      return JSON.parse(fromStorage) as DbShape
+      const parsed = JSON.parse(fromStorage) as DbShape
+      if (!Array.isArray(parsed.income)) parsed.income = []
+      return parsed
     } catch {
       // ignore parsing errors and fall back to fetched json
     }
   }
-  return loadDefaultDb()
+  const fromDefault = await loadDefaultDb()
+  if (!Array.isArray(fromDefault.income)) fromDefault.income = []
+  return fromDefault
 }
 
 let db: DbShape | null = null
@@ -157,6 +163,19 @@ export const clinicMockRepository: ClinicRepository = {
     database.registrationDrafts.push(created)
     persistDb()
     return created
+  },
+
+  async getIncome(): Promise<IncomeEntry[]> {
+    const database = await initializeDb()
+    await delay()
+    return database.income ?? []
+  },
+
+  async addIncomeEntries(entries: IncomeEntry[]): Promise<void> {
+    const database = await initializeDb()
+    await delay()
+    database.income.push(...entries)
+    persistDb()
   },
 }
 

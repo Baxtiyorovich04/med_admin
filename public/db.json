@@ -407,126 +407,272 @@
             "amount": 2500000,
             "description": "Консультации",
             "paymentMethod": "cash",
-            "patientId": "pat_2001"
+            "patientId": "pat_2001",
+            "doctorId": "doc_1001"
         },
         {
             "date": "2026-02-11",
             "amount": 3200000,
             "description": "Услуги",
             "paymentMethod": "card",
-            "patientId": "pat_2002"
+            "patientId": "pat_2002",
+            "doctorId": "doc_1002"
         },
         {
             "date": "2026-02-12",
             "amount": 2800000,
             "description": "Консультации",
             "paymentMethod": "debt",
-            "patientId": "pat_2003"
+            "patientId": "pat_2003",
+            "doctorId": "doc_1003"
         },
         {
             "date": "2026-02-13",
             "amount": 4100000,
             "description": "Процедуры",
             "paymentMethod": "card",
-            "patientId": "pat_2004"
+            "patientId": "pat_2004",
+            "doctorId": "doc_1001"
         },
         {
             "date": "2026-02-14",
             "amount": 3500000,
             "description": "Услуги",
             "paymentMethod": "cash",
-            "patientId": "pat_2005"
+            "patientId": "pat_2005",
+            "doctorId": "doc_1002"
         },
         {
             "date": "2026-02-15",
             "amount": 2900000,
             "description": "Консультации",
             "paymentMethod": "debt",
-            "patientId": "pat_2001"
+            "patientId": "pat_2001",
+            "doctorId": "doc_1003"
         },
         {
             "date": "2026-02-16",
             "amount": 3800000,
             "description": "Диагностика",
             "paymentMethod": "card",
-            "patientId": "pat_2002"
+            "patientId": "pat_2002",
+            "doctorId": "doc_1001"
         },
         {
             "date": "2026-02-17",
             "amount": 2600000,
             "description": "Консультации",
             "paymentMethod": "cash",
-            "patientId": "pat_2003"
+            "patientId": "pat_2003",
+            "doctorId": "doc_1002"
         },
         {
             "date": "2026-02-18",
             "amount": 3300000,
             "description": "Услуги",
             "paymentMethod": "card",
-            "patientId": "pat_2004"
+            "patientId": "pat_2004",
+            "doctorId": "doc_1003"
         },
         {
             "date": "2026-02-19",
             "amount": 2700000,
             "description": "УЗИ",
             "paymentMethod": "cash",
-            "patientId": "pat_2006"
+            "patientId": "pat_2006",
+            "doctorId": "doc_1002"
         },
         {
             "date": "2026-02-18",
             "amount": 3100000,
             "description": "Консультации",
             "paymentMethod": "card",
-            "patientId": "pat_2007"
+            "patientId": "pat_2007",
+            "doctorId": "doc_1001"
         },
         {
             "date": "2026-02-17",
             "amount": 2450000,
             "description": "Услуги",
             "paymentMethod": "debt",
-            "patientId": "pat_2008"
+            "patientId": "pat_2008",
+            "doctorId": "doc_1003"
         },
         {
             "date": "2026-02-16",
             "amount": 3600000,
             "description": "Диагностика",
             "paymentMethod": "cash",
-            "patientId": "pat_2009"
+            "patientId": "pat_2009",
+            "doctorId": "doc_1002"
         },
         {
             "date": "2026-02-15",
             "amount": 2800000,
             "description": "Процедуры",
             "paymentMethod": "card",
-            "patientId": "pat_2010"
+            "patientId": "pat_2010",
+            "doctorId": "doc_1001"
         },
         {
             "date": "2026-02-14",
             "amount": 3200000,
             "description": "Услуги",
             "paymentMethod": "debt",
-            "patientId": "pat_2010"
+            "patientId": "pat_2010",
+            "doctorId": "doc_1003"
         },
         {
             "date": "2026-02-13",
             "amount": 2950000,
             "description": "Консультации",
             "paymentMethod": "cash",
-            "patientId": "pat_2011"
+            "patientId": "pat_2011",
+            "doctorId": "doc_1002"
         },
         {
             "date": "2026-02-12",
             "amount": 3400000,
             "description": "УЗИ",
             "paymentMethod": "card",
-            "patientId": "pat_2012"
+            "patientId": "pat_2012",
+            "doctorId": "doc_1002"
         },
         {
             "date": "2026-02-11",
             "amount": 2600000,
             "description": "Процедуры",
             "paymentMethod": "cash",
-            "patientId": "pat_2012"
+            "patientId": "pat_2012",
+            "doctorId": "doc_1003"
+        },
+        {
+            "date": "2026-02-20",
+            "amount": 1850000,
+            "description": "ЛОР консультация",
+            "paymentMethod": "cash",
+            "patientId": "pat_2001",
+            "doctorId": "doc_1001"
+        },
+        {
+            "date": "2026-02-20",
+            "amount": 2200000,
+            "description": "УЗИ",
+            "paymentMethod": "card",
+            "patientId": "pat_2003",
+            "doctorId": "doc_1002"
+        },
+        {
+            "date": "2026-02-21",
+            "amount": 1500000,
+            "description": "ЭКГ",
+            "paymentMethod": "cash",
+            "patientId": "pat_2005",
+            "doctorId": "doc_1003"
+        },
+        {
+            "date": "2026-02-21",
+            "amount": 2900000,
+            "description": "Эндоскопия ЛОР",
+            "paymentMethod": "card",
+            "patientId": "pat_2007",
+            "doctorId": "doc_1001"
+        },
+        {
+            "date": "2026-02-22",
+            "amount": 1100000,
+            "description": "Консультация гинеколог",
+            "paymentMethod": "cash",
+            "patientId": "pat_2006",
+            "doctorId": "doc_1002"
+        },
+        {
+            "date": "2026-02-22",
+            "amount": 1950000,
+            "description": "Кардиолог консультация",
+            "paymentMethod": "card",
+            "patientId": "pat_2009",
+            "doctorId": "doc_1003"
+        },
+        {
+            "date": "2026-02-23",
+            "amount": 3400000,
+            "description": "Услуги",
+            "paymentMethod": "cash",
+            "patientId": "pat_2010",
+            "doctorId": "doc_1001"
+        },
+        {
+            "date": "2026-02-23",
+            "amount": 2750000,
+            "description": "УЗИ гинекология",
+            "paymentMethod": "card",
+            "patientId": "pat_2002",
+            "doctorId": "doc_1002"
+        },
+        {
+            "date": "2026-02-24",
+            "amount": 1680000,
+            "description": "Консультации",
+            "paymentMethod": "debt",
+            "patientId": "pat_2011",
+            "doctorId": "doc_1003"
+        },
+        {
+            "date": "2026-02-24",
+            "amount": 4100000,
+            "description": "Диагностика",
+            "paymentMethod": "card",
+            "patientId": "pat_2004",
+            "doctorId": "doc_1001"
+        },
+        {
+            "date": "2026-02-25",
+            "amount": 2300000,
+            "description": "Процедуры",
+            "paymentMethod": "cash",
+            "patientId": "pat_2008",
+            "doctorId": "doc_1002"
+        },
+        {
+            "date": "2026-02-25",
+            "amount": 1890000,
+            "description": "ЭКГ и консультация",
+            "paymentMethod": "card",
+            "patientId": "pat_2012",
+            "doctorId": "doc_1003"
+        },
+        {
+            "date": "2026-02-26",
+            "amount": 1000000,
+            "description": "ЛОР консультация",
+            "paymentMethod": "cash",
+            "patientId": "pat_2001",
+            "doctorId": "doc_1001"
+        },
+        {
+            "date": "2026-02-26",
+            "amount": 3200000,
+            "description": "Услуги",
+            "paymentMethod": "card",
+            "patientId": "pat_2003",
+            "doctorId": "doc_1002"
+        },
+        {
+            "date": "2026-02-27",
+            "amount": 2550000,
+            "description": "Кардиолог",
+            "paymentMethod": "cash",
+            "patientId": "pat_2005",
+            "doctorId": "doc_1003"
+        },
+        {
+            "date": "2026-02-27",
+            "amount": 1800000,
+            "description": "Эндоскопия",
+            "paymentMethod": "debt",
+            "patientId": "pat_2007",
+            "doctorId": "doc_1001"
         }
     ]
 }

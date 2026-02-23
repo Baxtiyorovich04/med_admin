@@ -9,6 +9,7 @@ import type {
   Service,
   Patient,
   RegistrationDraft,
+  IncomeEntry,
 } from '../types/clinic'
 
 export interface Dictionaries {
@@ -32,5 +33,8 @@ export interface ClinicRepository {
   createRegistrationDraft(
     draft: Omit<RegistrationDraft, 'id' | 'createdAt'>,
   ): Promise<RegistrationDraft>
+
+  getIncome(): Promise<IncomeEntry[]>
+  addIncomeEntries(entries: IncomeEntry[]): Promise<void>
 }
 

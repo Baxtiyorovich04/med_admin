@@ -85,13 +85,10 @@ export function CashPage() {
         const dictionaries = await clinicMockRepository.getDictionaries()
         setMeta(dictionaries.meta)
 
-        // Try to fetch income data
+        // Load income from repository (persisted with doctorId for reports)
         try {
-          const response = await fetch('/db.json')
-          if (response.ok) {
-            const dbDataFetch = await response.json()
-            setIncomeData(dbDataFetch.income || [])
-          }
+          const income = await clinicMockRepository.getIncome()
+          setIncomeData(income)
         } catch {
           setIncomeData([])
         }
@@ -527,10 +524,44 @@ export function CashPage() {
     }, 250)
   }
 
-  const handleCompletePayment = () => {
+  const handleCompletePayment = async () => {
     if (!isPaid) {
       alert('Пожалуйста, отметьте статус оплаты')
       return
+    }
+
+    // Доход по врачам: группируем услуги по doctorId, считаем долю каждого, создаём записи дохода
+    const defaultDoctorId = dbData?.doctors?.[0]?.id ?? 'doc_1001'
+    const byDoctor = new Map<string, number>()
+    for (const s of draft.services) {
+      const key = s.doctorId || defaultDoctorId
+      byDoctor.set(key, (byDoctor.get(key) || 0) + s.price)
+    }
+    const subtotal = draft.subtotal || 1
+    const total = draft.total
+    const dateStr = new Date().toISOString().slice(0, 10)
+    const serviceNames =
+      dbData?.services && draft.services.length
+        ? draft.services
+            .map((s) => dbData.services.find((sv) => sv.id === s.serviceId)?.name)
+            .filter(Boolean)
+            .join(', ')
+        : 'Услуги'
+    const entries: IncomeEntry[] = []
+    byDoctor.forEach((doctorSubtotal, key) => {
+      const amount = Math.round((doctorSubtotal / subtotal) * total)
+      if (amount <= 0) return
+      entries.push({
+        date: dateStr,
+        amount,
+        description: serviceNames || 'Регистрация',
+        paymentMethod,
+        patientId: draft.patientId,
+        doctorId: key,
+      })
+    })
+    if (entries.length > 0) {
+      await clinicMockRepository.addIncomeEntries(entries)
     }
 
     handlePrintReceipt()
