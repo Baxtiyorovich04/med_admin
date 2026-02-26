@@ -14,6 +14,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Tabs,
+  Tab,
   TextField,
   Typography,
   Chip,
@@ -47,6 +49,7 @@ import { Document, Packer, Paragraph, TextRun, Table as DocTable, TableRow as Do
 import { saveAs } from 'file-saver'
 import { clinicMockRepository } from '../repositories/clinicRepository.mock'
 import type { IncomeEntry, Patient, Meta, Doctor } from '../types/clinic'
+import { ServicesReportPage } from './ServicesReportPage'
 
 interface IncomeData extends IncomeEntry {
   patientName?: string
@@ -65,6 +68,7 @@ export function ReportsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null)
+  const [reportTab, setReportTab] = useState(0)
 
   // Load data on component mount
   useEffect(() => {
@@ -436,6 +440,24 @@ export function ReportsPage() {
 
   return (
     <Box sx={{ p: 3 }}>
+      <Tabs
+        value={reportTab}
+        onChange={(_, v) => setReportTab(v)}
+        sx={{
+          borderBottom: 2,
+          borderColor: 'divider',
+          mb: 3,
+          '& .MuiTab-root': { fontWeight: 600 },
+        }}
+      >
+        <Tab label="Финансовый отчёт" />
+        <Tab label="Отчет по услугам" />
+      </Tabs>
+
+      {reportTab === 1 ? (
+        <ServicesReportPage />
+      ) : (
+        <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
           Финансовые отчёты
@@ -782,6 +804,8 @@ export function ReportsPage() {
               </Table>
             </TableContainer>
           </Card>
+        </>
+      )}
         </>
       )}
     </Box>
