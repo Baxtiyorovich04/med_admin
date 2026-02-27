@@ -1,0 +1,295 @@
+{
+  "doctors": [
+    { "id": "d1", "fullName": "Мадриев Алишер Каримович", "specialization": "ЛОР", "salaryPercent": 30, "isActive": true },
+    { "id": "d2", "fullName": "Холмедова Нилуфар Шавкатовна", "specialization": "Кардиолог", "salaryPercent": 35, "isActive": true },
+    { "id": "d3", "fullName": "Юсупов Бехруз Азизович", "specialization": "Терапевт", "salaryPercent": 28, "isActive": true },
+    { "id": "d4", "fullName": "Саидова Махлиё Абдурахмановна", "specialization": "Гинеколог", "salaryPercent": 32, "isActive": true }
+  ],
+  "services": [
+    { "id": "s1", "category": "Прием", "name": "Первичный осмотр", "price": 150000, "currency": "UZS", "isActive": true },
+    { "id": "s2", "category": "Прием", "name": "Повторный осмотр", "price": 100000, "currency": "UZS", "isActive": true },
+    { "id": "s3", "category": "Диагностика", "name": "УЗИ брюшной полости", "price": 220000, "currency": "UZS", "isActive": true },
+    { "id": "s4", "category": "Диагностика", "name": "ЭКГ", "price": 120000, "currency": "UZS", "isActive": true },
+    { "id": "s5", "category": "Лаборатория", "name": "Общий анализ крови", "price": 80000, "currency": "UZS", "isActive": true },
+    { "id": "s6", "category": "Прием", "name": "Консультация гинеколога", "price": 180000, "currency": "UZS", "isActive": true }
+  ],
+  "patients": [
+    { "id": "p1", "fullName": "Иванов Иван", "phone": "+998901234001" },
+    { "id": "p2", "fullName": "Петрова Анна", "phone": "+998901234002" },
+    { "id": "p3", "fullName": "Садыков Азиз", "phone": "+998901234003" },
+    { "id": "p4", "fullName": "Каримова Мадина", "phone": "+998901234004" },
+    { "id": "p5", "fullName": "Абдуллаев Нодир", "phone": "+998901234005" },
+    { "id": "p6", "fullName": "Юлдашева Зарина", "phone": "+998901234006" },
+    { "id": "p7", "fullName": "Турсунов Али", "phone": "+998901234007" },
+    { "id": "p8", "fullName": "Рахимова Малика", "phone": "+998901234008" },
+    { "id": "p9", "fullName": "Ким Алексей", "phone": "+998901234009" },
+    { "id": "p10", "fullName": "Ходжаев Дилшод", "phone": "+998901234010" }
+  ],
+  "visits": [
+    {
+      "id": "v1",
+      "patientId": "p1",
+      "doctorId": "d1",
+      "serviceId": "s1",
+      "priceAtTime": 150000,
+      "discountApplied": false,
+      "amountPaid": 150000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-01T09:15:00+05:00"
+    },
+    {
+      "id": "v2",
+      "patientId": "p2",
+      "doctorId": "d2",
+      "serviceId": "s4",
+      "priceAtTime": 120000,
+      "discountApplied": true,
+      "amountPaid": 100000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-01T11:40:00+05:00"
+    },
+    {
+      "id": "v3",
+      "patientId": "p3",
+      "doctorId": "d3",
+      "serviceId": "s2",
+      "priceAtTime": 100000,
+      "discountApplied": false,
+      "amountPaid": 100000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-02T10:05:00+05:00"
+    },
+    {
+      "id": "v4",
+      "patientId": "p4",
+      "doctorId": "d4",
+      "serviceId": "s6",
+      "priceAtTime": 180000,
+      "discountApplied": true,
+      "amountPaid": 150000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-02T15:30:00+05:00"
+    },
+    {
+      "id": "v5",
+      "patientId": "p5",
+      "doctorId": "d1",
+      "serviceId": "s1",
+      "priceAtTime": 150000,
+      "discountApplied": false,
+      "amountPaid": 150000,
+      "paymentStatus": "UNPAID",
+      "createdAt": "2026-02-03T09:50:00+05:00"
+    },
+    {
+      "id": "v6",
+      "patientId": "p6",
+      "doctorId": "d2",
+      "serviceId": "s3",
+      "priceAtTime": 220000,
+      "discountApplied": false,
+      "amountPaid": 220000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-03T16:20:00+05:00"
+    },
+    {
+      "id": "v7",
+      "patientId": "p7",
+      "doctorId": "d3",
+      "serviceId": "s5",
+      "priceAtTime": 80000,
+      "discountApplied": true,
+      "amountPaid": 60000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-04T08:45:00+05:00"
+    },
+    {
+      "id": "v8",
+      "patientId": "p8",
+      "doctorId": "d4",
+      "serviceId": "s6",
+      "priceAtTime": 180000,
+      "discountApplied": false,
+      "amountPaid": 180000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-05T13:10:00+05:00"
+    },
+    {
+      "id": "v9",
+      "patientId": "p9",
+      "doctorId": "d1",
+      "serviceId": "s2",
+      "priceAtTime": 100000,
+      "discountApplied": false,
+      "amountPaid": 100000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-10T09:30:00+05:00"
+    },
+    {
+      "id": "v10",
+      "patientId": "p10",
+      "doctorId": "d2",
+      "serviceId": "s3",
+      "priceAtTime": 220000,
+      "discountApplied": true,
+      "amountPaid": 180000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-11T14:15:00+05:00"
+    },
+    {
+      "id": "v11",
+      "patientId": "p1",
+      "doctorId": "d3",
+      "serviceId": "s5",
+      "priceAtTime": 80000,
+      "discountApplied": false,
+      "amountPaid": 80000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-12T10:00:00+05:00"
+    },
+    {
+      "id": "v12",
+      "patientId": "p2",
+      "doctorId": "d4",
+      "serviceId": "s6",
+      "priceAtTime": 180000,
+      "discountApplied": true,
+      "amountPaid": 160000,
+      "paymentStatus": "UNPAID",
+      "createdAt": "2026-02-13T12:35:00+05:00"
+    },
+    {
+      "id": "v13",
+      "patientId": "p3",
+      "doctorId": "d1",
+      "serviceId": "s1",
+      "priceAtTime": 150000,
+      "discountApplied": false,
+      "amountPaid": 150000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-15T11:20:00+05:00"
+    },
+    {
+      "id": "v14",
+      "patientId": "p4",
+      "doctorId": "d2",
+      "serviceId": "s4",
+      "priceAtTime": 120000,
+      "discountApplied": false,
+      "amountPaid": 120000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-16T17:05:00+05:00"
+    },
+    {
+      "id": "v15",
+      "patientId": "p5",
+      "doctorId": "d3",
+      "serviceId": "s2",
+      "priceAtTime": 100000,
+      "discountApplied": true,
+      "amountPaid": 90000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-18T09:40:00+05:00"
+    },
+    {
+      "id": "v16",
+      "patientId": "p6",
+      "doctorId": "d4",
+      "serviceId": "s6",
+      "priceAtTime": 180000,
+      "discountApplied": false,
+      "amountPaid": 180000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-19T16:00:00+05:00"
+    },
+    {
+      "id": "v17",
+      "patientId": "p7",
+      "doctorId": "d1",
+      "serviceId": "s1",
+      "priceAtTime": 150000,
+      "discountApplied": true,
+      "amountPaid": 130000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-20T08:55:00+05:00"
+    },
+    {
+      "id": "v18",
+      "patientId": "p8",
+      "doctorId": "d2",
+      "serviceId": "s3",
+      "priceAtTime": 220000,
+      "discountApplied": false,
+      "amountPaid": 220000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-21T15:10:00+05:00"
+    },
+    {
+      "id": "v19",
+      "patientId": "p9",
+      "doctorId": "d3",
+      "serviceId": "s5",
+      "priceAtTime": 80000,
+      "discountApplied": true,
+      "amountPaid": 70000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-22T10:30:00+05:00"
+    },
+    {
+      "id": "v20",
+      "patientId": "p10",
+      "doctorId": "d4",
+      "serviceId": "s6",
+      "priceAtTime": 180000,
+      "discountApplied": false,
+      "amountPaid": 180000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-24T14:45:00+05:00"
+    },
+    {
+      "id": "v21",
+      "patientId": "p1",
+      "doctorId": "d1",
+      "serviceId": "s2",
+      "priceAtTime": 100000,
+      "discountApplied": false,
+      "amountPaid": 100000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-03-01T09:10:00+05:00"
+    },
+    {
+      "id": "v22",
+      "patientId": "p2",
+      "doctorId": "d2",
+      "serviceId": "s4",
+      "priceAtTime": 120000,
+      "discountApplied": false,
+      "amountPaid": 120000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-03-02T11:25:00+05:00"
+    },
+    {
+      "id": "v23",
+      "patientId": "p3",
+      "doctorId": "d3",
+      "serviceId": "s5",
+      "priceAtTime": 80000,
+      "discountApplied": false,
+      "amountPaid": 80000,
+      "paymentStatus": "UNPAID",
+      "createdAt": "2026-03-02T15:40:00+05:00"
+    },
+    {
+      "id": "v24",
+      "patientId": "p4",
+      "doctorId": "d4",
+      "serviceId": "s6",
+      "priceAtTime": 180000,
+      "discountApplied": true,
+      "amountPaid": 150000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-03-03T13:05:00+05:00"
+    }
+  ]
+}
+

@@ -50,6 +50,7 @@ import { saveAs } from 'file-saver'
 import { clinicMockRepository } from '../repositories/clinicRepository.mock'
 import type { IncomeEntry, Patient, Meta, Doctor } from '../types/clinic'
 import { ServicesReportPage } from './ServicesReportPage'
+import { DoctorSalaryPage } from './DoctorSalaryPage'
 
 interface IncomeData extends IncomeEntry {
   patientName?: string
@@ -429,14 +430,14 @@ export function ReportsPage() {
       }),
     )
 
-    const doc = new Document({
-      sections: [{ children: sections }],
-    })
+  const doc = new Document({
+    sections: [{ children: sections }],
+  })
 
-    const blob = await Packer.toBlob(doc)
-    const filename = `Финансовый_отчет_${startDate.format('DD.MM.YYYY')}_${endDate.format('DD.MM.YYYY')}.docx`
-    saveAs(blob, filename)
-  }
+  const blob = await Packer.toBlob(doc)
+  const filename = `Финансовый_отчет_${startDate.format('DD.MM.YYYY')}_${endDate.format('DD.MM.YYYY')}.docx`
+  saveAs(blob, filename)
+}
 
   return (
     <Box sx={{ p: 3 }}>
@@ -452,362 +453,379 @@ export function ReportsPage() {
       >
         <Tab label="Финансовый отчёт" />
         <Tab label="Отчет по услугам" />
+        <Tab label="Зарплата" />
       </Tabs>
 
-      {reportTab === 1 ? (
-        <ServicesReportPage />
-      ) : (
+      {reportTab === 0 && (
         <>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-          Финансовые отчёты
-        </Typography>
-        <Box>
-          <Button
-            variant="contained"
-            startIcon={<FileDownloadIcon />}
-            onClick={(e) => setExportAnchorEl(e.currentTarget)}
+          <Box
             sx={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
-              },
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 4,
             }}
           >
-            Экспорт данных
-          </Button>
-          <Menu
-            anchorEl={exportAnchorEl}
-            open={Boolean(exportAnchorEl)}
-            onClose={() => setExportAnchorEl(null)}
-          >
-            <MenuItem
-              onClick={() => {
-                exportToExcel()
-                setExportAnchorEl(null)
+            <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+              Финансовые отчёты
+            </Typography>
+            <Box>
+              <Button
+                variant="contained"
+                startIcon={<FileDownloadIcon />}
+                onClick={(e) => setExportAnchorEl(e.currentTarget)}
+                sx={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
+                  },
+                }}
+              >
+                Экспорт данных
+              </Button>
+              <Menu
+                anchorEl={exportAnchorEl}
+                open={Boolean(exportAnchorEl)}
+                onClose={() => setExportAnchorEl(null)}
+              >
+                <MenuItem
+                  onClick={() => {
+                    exportToExcel()
+                    setExportAnchorEl(null)
+                  }}
+                >
+                  📊 Экспорт в Excel
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    exportToWord()
+                    setExportAnchorEl(null)
+                  }}
+                >
+                  📄 Экспорт в Word
+                </MenuItem>
+              </Menu>
+            </Box>
+          </Box>
+
+          {/* Error Display */}
+          {error && (
+            <Card
+              sx={{
+                mb: 4,
+                backgroundColor: '#ffebee',
+                borderColor: '#f44336',
+                border: '1px solid',
               }}
             >
-              📊 Экспорт в Excel
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                exportToWord()
-                setExportAnchorEl(null)
-              }}
-            >
-              📄 Экспорт в Word
-            </MenuItem>
-          </Menu>
-        </Box>
-      </Box>
-
-      {/* Error Display */}
-      {error && (
-        <Card sx={{ mb: 4, backgroundColor: '#ffebee', borderColor: '#f44336', border: '1px solid' }}>
-          <CardContent>
-            <Typography color="error">{error}</Typography>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Loading State */}
-      {loading && (
-        <Card sx={{ mb: 4 }}>
-          <CardContent sx={{ textAlign: 'center', py: 4 }}>
-            <Typography>Загрузка данных...</Typography>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Content - only show when not loading and no error */}
-      {!loading && !error && (
-        <>
-          {/* Filter Section */}
-          <Card sx={{ mb: 4 }}>
-            <CardContent>
-              <Stack spacing={2}>
-                <Typography variant="h6">Фильтры</Typography>
-                <ButtonGroup variant="outlined">
-                  <Button
-                    variant={filterType === 'week' ? 'contained' : 'outlined'}
-                    onClick={handleSetWeekly}
-                  >
-                    Неделя (7 дней)
-                  </Button>
-                  <Button
-                    variant={filterType === 'custom' ? 'contained' : 'outlined'}
-                    onClick={() => setFilterType('custom')}
-                  >
-                    Произвольный период
-                  </Button>
-                </ButtonGroup>
-
-                {filterType === 'custom' && (
-                  <Stack direction="row" spacing={2}>
-                    <DatePicker
-                      label="От"
-                      value={startDate}
-                      onChange={(date) => date && setStartDate(date)}
-                      slotProps={{ textField: { size: 'small' } }}
-                    />
-                    <DatePicker
-                      label="До"
-                      value={endDate}
-                      onChange={(date) => date && setEndDate(date)}
-                      slotProps={{ textField: { size: 'small' } }}
-                    />
-                  </Stack>
-                )}
-
-                <Typography variant="body2" color="textSecondary">
-                  Период: {startDate.format('DD.MM.YYYY')} — {endDate.format('DD.MM.YYYY')}
-                </Typography>
-              </Stack>
-            </CardContent>
-          </Card>
-
-          {/* Summary Cards */}
-          <Grid container spacing={2} sx={{ mb: 4 }}>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Card>
-                <CardContent>
-                  <Typography color="textSecondary" gutterBottom>
-                    Всего доход
-                  </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
-                    {formatCurrency(totals.total)}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Card>
-                <CardContent>
-                  <Typography color="textSecondary" gutterBottom>
-                    Наличные
-                  </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#388e3c' }}>
-                    {formatCurrency(totals.cash)}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Card>
-                <CardContent>
-                  <Typography color="textSecondary" gutterBottom>
-                    Карта
-                  </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0288d1' }}>
-                    {formatCurrency(totals.card)}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Card>
-                <CardContent>
-                  <Typography color="textSecondary" gutterBottom>
-                    Долг
-                  </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#d32f2f' }}>
-                    {formatCurrency(totals.debt)}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-
-          {/* Charts */}
-          <Grid container spacing={3} sx={{ mb: 4 }}>
-            {/* Daily Income Chart */}
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Card>
-                <CardHeader title="Доход по дням" />
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={dailyData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" angle={-45} textAnchor="end" height={80} />
-                      <YAxis />
-                      <Tooltip formatter={(value) => formatCurrency(value as number)} />
-                      <Legend />
-                      <Bar dataKey="cash" stackId="a" fill="#82ca9d" name="Наличные" />
-                      <Bar dataKey="card" stackId="a" fill="#8884d8" name="Карта" />
-                      <Bar dataKey="debt" stackId="a" fill="#ffc658" name="Долг" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Payment Method Pie Chart */}
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Card>
-                <CardHeader title="Распределение по способу оплаты" />
-                <CardContent sx={{ display: 'flex', justifyContent: 'center' }}>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={paymentMethodData.filter((d) => d.value > 0)}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, value }) => `${name}: ${formatCurrency(value)}`}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {paymentMethodData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip formatter={(value) => formatCurrency(value as number)} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Cumulative Income by Doctor */}
-            <Grid size={{ xs: 12 }}>
-              <Card>
-                <CardHeader title="Кумулятивный доход по врачам" />
-                <CardContent>
-                  {doctorCumulativeData.length > 0 && doctorTotalBars.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={doctorCumulativeData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" angle={-45} textAnchor="end" height={80} />
-                        <YAxis />
-                        <Tooltip formatter={(value) => formatCurrency(value as number)} />
-                        <Legend />
-                        {doctorTotalBars.map((d, idx) => (
-                          <Line
-                            key={d.name}
-                            type="monotone"
-                            dataKey={d.name}
-                            stroke={DOCTOR_CHART_COLORS[idx % DOCTOR_CHART_COLORS.length]}
-                            name={d.name}
-                            dot={false}
-                          />
-                        ))}
-                      </LineChart>
-                    </ResponsiveContainer>
-                  ) : (
-                    <Typography color="text.secondary" sx={{ py: 4, textAlign: 'center' }}>
-                      Нет данных о доходах по врачам за выбранный период. Доход по врачам появляется после оплаты регистраций, где при выборе услуг указан врач.
-                    </Typography>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-
-          {/* Debt List */}
-          {debtEntries.length > 0 && (
-            <Card sx={{ mb: 4 }}>
-              <CardHeader
-                title={`Задолженность (${debtEntries.length} записей)`}
-                subheader={`Сумма: ${formatCurrency(totals.debt)}`}
-              />
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                      <TableCell>Дата</TableCell>
-                      <TableCell>Пациент</TableCell>
-                      <TableCell>Описание</TableCell>
-                      <TableCell align="right">Сумма</TableCell>
-                      <TableCell>Статус</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {debtEntries.map((entry, idx) => (
-                      <TableRow key={idx} hover>
-                        <TableCell>{dayjs(entry.date).format('DD.MM.YYYY')}</TableCell>
-                        <TableCell>{entry.patientName || 'Unknown'}</TableCell>
-                        <TableCell>{entry.description}</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                          {formatCurrency(entry.amount)}
-                        </TableCell>
-                        <TableCell>
-                          <Chip label="Долг" color="error" variant="outlined" size="small" />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              <CardContent>
+                <Typography color="error">{error}</Typography>
+              </CardContent>
             </Card>
           )}
 
-          {/* Detailed Income List */}
-          <Card>
-            <CardHeader
-              title={`Все транзакции (${filteredData.length} записей)`}
-              subheader={`Последнее обновление: ${dayjs().format('DD.MM.YYYY HH:mm')}`}
-            />
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                    <TableCell>Дата</TableCell>
-                    <TableCell>Пациент</TableCell>
-                    <TableCell>Описание</TableCell>
-                    <TableCell align="right">Сумма</TableCell>
-                    <TableCell>Способ оплаты</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredData.length > 0 ? (
-                    filteredData.map((entry, idx) => (
-                      <TableRow key={idx} hover>
-                        <TableCell>{dayjs(entry.date).format('DD.MM.YYYY')}</TableCell>
-                        <TableCell>{entry.patientName || 'Unknown'}</TableCell>
-                        <TableCell>{entry.description}</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                          {formatCurrency(entry.amount)}
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={
-                              entry.paymentMethod === 'cash'
-                                ? 'Наличные'
-                                : entry.paymentMethod === 'card'
-                                  ? 'Карта'
-                                  : 'Долг'
-                            }
-                            color={
-                              entry.paymentMethod === 'debt'
-                                ? 'error'
-                                : entry.paymentMethod === 'card'
-                                  ? 'info'
-                                  : 'success'
-                            }
-                            variant="outlined"
-                            size="small"
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
-                        <Typography color="textSecondary">
-                          Нет транзакций за выбранный период
+          {/* Loading State */}
+          {loading && (
+            <Card sx={{ mb: 4 }}>
+              <CardContent sx={{ textAlign: 'center', py: 4 }}>
+                <Typography>Загрузка данных...</Typography>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Content - only show when not loading and no error */}
+          {!loading && !error && (
+            <>
+              {/* Filter Section */}
+              <Card sx={{ mb: 4 }}>
+                <CardContent>
+                  <Stack spacing={2}>
+                    <Typography variant="h6">Фильтры</Typography>
+                    <ButtonGroup variant="outlined">
+                      <Button
+                        variant={filterType === 'week' ? 'contained' : 'outlined'}
+                        onClick={handleSetWeekly}
+                      >
+                        Неделя (7 дней)
+                      </Button>
+                      <Button
+                        variant={filterType === 'custom' ? 'contained' : 'outlined'}
+                        onClick={() => setFilterType('custom')}
+                      >
+                        Произвольный период
+                      </Button>
+                    </ButtonGroup>
+
+                    {filterType === 'custom' && (
+                      <Stack direction="row" spacing={2}>
+                        <DatePicker
+                          label="От"
+                          value={startDate}
+                          onChange={(date) => date && setStartDate(date)}
+                          slotProps={{ textField: { size: 'small' } }}
+                        />
+                        <DatePicker
+                          label="До"
+                          value={endDate}
+                          onChange={(date) => date && setEndDate(date)}
+                          slotProps={{ textField: { size: 'small' } }}
+                        />
+                      </Stack>
+                    )}
+
+                    <Typography variant="body2" color="textSecondary">
+                      Период: {startDate.format('DD.MM.YYYY')} — {endDate.format('DD.MM.YYYY')}
+                    </Typography>
+                  </Stack>
+                </CardContent>
+              </Card>
+
+              {/* Summary Cards */}
+              <Grid container spacing={2} sx={{ mb: 4 }}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                  <Card>
+                    <CardContent>
+                      <Typography color="textSecondary" gutterBottom>
+                        Всего доход
+                      </Typography>
+                      <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
+                        {formatCurrency(totals.total)}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                  <Card>
+                    <CardContent>
+                      <Typography color="textSecondary" gutterBottom>
+                        Наличные
+                      </Typography>
+                      <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#388e3c' }}>
+                        {formatCurrency(totals.cash)}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                  <Card>
+                    <CardContent>
+                      <Typography color="textSecondary" gutterBottom>
+                        Карта
+                      </Typography>
+                      <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0288d1' }}>
+                        {formatCurrency(totals.card)}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                  <Card>
+                    <CardContent>
+                      <Typography color="textSecondary" gutterBottom>
+                        Долг
+                      </Typography>
+                      <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#d32f2f' }}>
+                        {formatCurrency(totals.debt)}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+
+              {/* Charts */}
+              <Grid container spacing={3} sx={{ mb: 4 }}>
+                {/* Daily Income Chart */}
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Card>
+                    <CardHeader title="Доход по дням" />
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={dailyData}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="date" angle={-45} textAnchor="end" height={80} />
+                          <YAxis />
+                          <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                          <Legend />
+                          <Bar dataKey="cash" stackId="a" fill="#82ca9d" name="Наличные" />
+                          <Bar dataKey="card" stackId="a" fill="#8884d8" name="Карта" />
+                          <Bar dataKey="debt" stackId="a" fill="#ffc658" name="Долг" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                {/* Payment Method Pie Chart */}
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Card>
+                    <CardHeader title="Распределение по способу оплаты" />
+                    <CardContent sx={{ display: 'flex', justifyContent: 'center' }}>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <PieChart>
+                          <Pie
+                            data={paymentMethodData.filter((d) => d.value > 0)}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, value }) => `${name}: ${formatCurrency(value)}`}
+                            outerRadius={80}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            {paymentMethodData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                {/* Cumulative Income by Doctor */}
+                <Grid size={{ xs: 12 }}>
+                  <Card>
+                    <CardHeader title="Кумулятивный доход по врачам" />
+                    <CardContent>
+                      {doctorCumulativeData.length > 0 && doctorTotalBars.length > 0 ? (
+                        <ResponsiveContainer width="100%" height={300}>
+                          <LineChart data={doctorCumulativeData}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="date" angle={-45} textAnchor="end" height={80} />
+                            <YAxis />
+                            <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                            <Legend />
+                            {doctorTotalBars.map((d, idx) => (
+                              <Line
+                                key={d.name}
+                                type="monotone"
+                                dataKey={d.name}
+                                stroke={DOCTOR_CHART_COLORS[idx % DOCTOR_CHART_COLORS.length]}
+                                name={d.name}
+                                dot={false}
+                              />
+                            ))}
+                          </LineChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <Typography color="text.secondary" sx={{ py: 4, textAlign: 'center' }}>
+                          Нет данных о доходах по врачам за выбранный период. Доход по врачам
+                          появляется после оплаты регистраций, где при выборе услуг указан врач.
                         </Typography>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Card>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+
+              {/* Debt List */}
+              {debtEntries.length > 0 && (
+                <Card sx={{ mb: 4 }}>
+                  <CardHeader
+                    title={`Задолженность (${debtEntries.length} записей)`}
+                    subheader={`Сумма: ${formatCurrency(totals.debt)}`}
+                  />
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                          <TableCell>Дата</TableCell>
+                          <TableCell>Пациент</TableCell>
+                          <TableCell>Описание</TableCell>
+                          <TableCell align="right">Сумма</TableCell>
+                          <TableCell>Статус</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {debtEntries.map((entry, idx) => (
+                          <TableRow key={idx} hover>
+                            <TableCell>{dayjs(entry.date).format('DD.MM.YYYY')}</TableCell>
+                            <TableCell>{entry.patientName || 'Unknown'}</TableCell>
+                            <TableCell>{entry.description}</TableCell>
+                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                              {formatCurrency(entry.amount)}
+                            </TableCell>
+                            <TableCell>
+                              <Chip label="Долг" color="error" variant="outlined" size="small" />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Card>
+              )}
+
+              {/* Detailed Income List */}
+              <Card>
+                <CardHeader
+                  title={`Все транзакции (${filteredData.length} записей)`}
+                  subheader={`Последнее обновление: ${dayjs().format('DD.MM.YYYY HH:mm')}`}
+                />
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                        <TableCell>Дата</TableCell>
+                        <TableCell>Пациент</TableCell>
+                        <TableCell>Описание</TableCell>
+                        <TableCell align="right">Сумма</TableCell>
+                        <TableCell>Способ оплаты</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {filteredData.length > 0 ? (
+                        filteredData.map((entry, idx) => (
+                          <TableRow key={idx} hover>
+                            <TableCell>{dayjs(entry.date).format('DD.MM.YYYY')}</TableCell>
+                            <TableCell>{entry.patientName || 'Unknown'}</TableCell>
+                            <TableCell>{entry.description}</TableCell>
+                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                              {formatCurrency(entry.amount)}
+                            </TableCell>
+                            <TableCell>
+                              <Chip
+                                label={
+                                  entry.paymentMethod === 'cash'
+                                    ? 'Наличные'
+                                    : entry.paymentMethod === 'card'
+                                      ? 'Карта'
+                                      : 'Долг'
+                                }
+                                color={
+                                  entry.paymentMethod === 'debt'
+                                    ? 'error'
+                                    : entry.paymentMethod === 'card'
+                                      ? 'info'
+                                      : 'success'
+                                }
+                                variant="outlined"
+                                size="small"
+                              />
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                            <Typography color="textSecondary">
+                              Нет транзакций за выбранный период
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Card>
+            </>
+          )}
         </>
       )}
-        </>
-      )}
+
+      {reportTab === 1 && <ServicesReportPage />}
+      {reportTab === 2 && <DoctorSalaryPage />}
     </Box>
   )
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Container,
@@ -36,6 +36,7 @@ import {
   Alert,
   Snackbar,
   OutlinedInput,
+  TableSortLabel,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -44,6 +45,9 @@ import {
   Search as SearchIcon,
   Close as CloseIcon,
   Archive as ArchiveIcon,
+  VpnKey as VpnKeyIcon,
+  Security as SecurityIcon,
+  FileDownload as FileDownloadIcon,
 } from '@mui/icons-material';
 import { clinicRepository } from '../repositories/clinicRepository.mock';
 
@@ -83,8 +87,25 @@ interface Patient {
   isArchived: boolean;
 }
 
-type TabValue = 'services' | 'doctors' | 'patients';
+type TabValue = 'services' | 'doctors' | 'patients' | 'users';
 type SnackbarType = 'success' | 'error' | 'info';
+
+// Users
+type UserType = 'doctor' | 'registrar' | 'admin';
+
+interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  type: UserType;
+  role: string;
+  login: string;
+  createdAt: string;
+  lastLoginAt?: string;
+  isActive: boolean;
+  birthDate?: string;
+}
 
 // ============================================================================
 // MAIN COMPONENT
@@ -146,6 +167,7 @@ export function SettingsPage() {
           <Tab label="Услуги и цены" value="services" />
           <Tab label="Доктора" value="doctors" />
           <Tab label="Пациенты" value="patients" />
+          <Tab label="Пользователи" value="users" />
         </Tabs>
       </Paper>
 
@@ -154,6 +176,7 @@ export function SettingsPage() {
         {currentTab === 'services' && <ServicesSection onSnackbar={showSnackbar} />}
         {currentTab === 'doctors' && <DoctorsSection onSnackbar={showSnackbar} />}
         {currentTab === 'patients' && <PatientsSection onSnackbar={showSnackbar} />}
+        {currentTab === 'users' && <UsersSection onSnackbar={showSnackbar} />}
       </Box>
 
       {/* Snackbar Notification */}
@@ -569,6 +592,830 @@ function ServicesSection({ onSnackbar }: ServicesSectionProps) {
     </>
   );
 }
+
+// ============================================================================
+// SECTION 4: USERS
+// ============================================================================
+
+interface UsersSectionProps {
+  onSnackbar: (message: string, type?: SnackbarType) => void;
+}
+
+type UsersOrderBy = 'fullName' | 'type' | 'login' | 'createdAt' | 'lastLoginAt';
+type UsersOrder = 'asc' | 'desc';
+
+function UsersSection({ onSnackbar }: UsersSectionProps) {
+  const [users, setUsers] = useState<User[]>([
+    {
+      id: 'u1',
+      firstName: 'Илхомиддин',
+      lastName: 'Кандахаров',
+      middleName: '',
+      type: 'doctor',
+      role: 'Врач',
+      login: 'urolog',
+      createdAt: '2026-02-01T09:10:00+05:00',
+      lastLoginAt: '2026-02-24T12:40:00+05:00',
+      isActive: true,
+    },
+    {
+      id: 'u2',
+      firstName: 'Феруза',
+      lastName: 'Изаятуллаева',
+      middleName: '',
+      type: 'registrar',
+      role: 'Регистратор',
+      login: 'registrar1',
+      createdAt: '2025-12-10T10:05:00+05:00',
+      lastLoginAt: '2026-02-20T09:25:00+05:00',
+      isActive: true,
+    },
+    {
+      id: 'u3',
+      firstName: 'Азиз',
+      lastName: 'Рахмонов',
+      middleName: 'Отабекович',
+      type: 'admin',
+      role: 'Администратор',
+      login: 'admin',
+      createdAt: '2024-04-01T08:00:00+05:00',
+      lastLoginAt: '2026-02-24T08:15:00+05:00',
+      isActive: true,
+    },
+  ]);
+
+  const [loading, setLoading] = useState<boolean>(false);
+  const [typeFilter, setTypeFilter] = useState<'all' | UserType>('all');
+  const [pageSize, setPageSize] = useState<number>(50);
+  const [search, setSearch] = useState('');
+  const [orderBy, setOrderBy] = useState<UsersOrderBy>('fullName');
+  const [order, setOrder] = useState<UsersOrder>('asc');
+
+  const [addOpen, setAddOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [credsOpen, setCredsOpen] = useState(false);
+  const [roleOpen, setRoleOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+  const [addForm, setAddForm] = useState({
+    firstName: '',
+    lastName: '',
+    middleName: '',
+    type: 'doctor' as UserType,
+    role: '',
+    login: '',
+    password: '',
+    passwordConfirm: '',
+    isActive: true,
+  });
+  const [addErrors, setAddErrors] = useState<Record<string, string>>({});
+
+  const [editForm, setEditForm] = useState({
+    firstName: '',
+    lastName: '',
+    middleName: '',
+    birthDate: '',
+    isActive: true,
+  });
+  const [editErrors, setEditErrors] = useState<Record<string, string>>({});
+
+  const [credForm, setCredForm] = useState({
+    login: '',
+    password: '',
+    passwordConfirm: '',
+  });
+  const [credErrors, setCredErrors] = useState<Record<string, string>>({});
+
+  const [roleForm, setRoleForm] = useState({
+    type: 'doctor' as UserType,
+    role: '',
+  });
+
+  const getTypeLabel = (type: UserType): string => {
+    switch (type) {
+      case 'doctor':
+        return 'Доктор';
+      case 'registrar':
+        return 'Регистратор';
+      case 'admin':
+        return 'Админ';
+      default:
+        return type;
+    }
+  };
+
+  const formatDateTime = (value?: string) => {
+    if (!value) return '—';
+    return new Date(value).toISOString().replace('T', ' ').substring(0, 16);
+  };
+
+  const filteredAndSortedUsers = useMemo(() => {
+    let data = [...users];
+
+    if (typeFilter !== 'all') {
+      data = data.filter((u) => u.type === typeFilter);
+    }
+
+    const searchLower = search.trim().toLowerCase();
+    if (searchLower) {
+      data = data.filter((u) => {
+        const fullName = `${u.lastName} ${u.firstName} ${u.middleName || ''}`.toLowerCase();
+        return fullName.includes(searchLower) || u.login.toLowerCase().includes(searchLower);
+      });
+    }
+
+    data.sort((a, b) => {
+      let aVal: string | number = '';
+      let bVal: string | number = '';
+
+      switch (orderBy) {
+        case 'fullName': {
+          const aName = `${a.lastName} ${a.firstName} ${a.middleName || ''}`;
+          const bName = `${b.lastName} ${b.firstName} ${b.middleName || ''}`;
+          aVal = aName;
+          bVal = bName;
+          break;
+        }
+        case 'type':
+          aVal = getTypeLabel(a.type);
+          bVal = getTypeLabel(b.type);
+          break;
+        case 'login':
+          aVal = a.login;
+          bVal = b.login;
+          break;
+        case 'createdAt':
+          aVal = new Date(a.createdAt).getTime();
+          bVal = new Date(b.createdAt).getTime();
+          break;
+        case 'lastLoginAt':
+          aVal = a.lastLoginAt ? new Date(a.lastLoginAt).getTime() : 0;
+          bVal = b.lastLoginAt ? new Date(b.lastLoginAt).getTime() : 0;
+          break;
+        default:
+          break;
+      }
+
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
+        return order === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      }
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        return order === 'asc' ? aVal - bVal : bVal - aVal;
+      }
+      return 0;
+    });
+
+    return data.slice(0, pageSize);
+  }, [users, typeFilter, search, orderBy, order, pageSize]);
+
+  const handleSort = (property: UsersOrderBy) => {
+    if (orderBy === property) {
+      setOrder(order === 'asc' ? 'desc' : 'asc');
+    } else {
+      setOrderBy(property);
+      setOrder('asc');
+    }
+  };
+
+  const openEdit = (user: User) => {
+    setSelectedUser(user);
+    setEditForm({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      middleName: user.middleName || '',
+      birthDate: user.birthDate || '',
+      isActive: user.isActive,
+    });
+    setEditErrors({});
+    setEditOpen(true);
+  };
+
+  const openCreds = (user: User) => {
+    setSelectedUser(user);
+    setCredForm({ login: user.login, password: '', passwordConfirm: '' });
+    setCredErrors({});
+    setCredsOpen(true);
+  };
+
+  const openRoleDialog = (user: User) => {
+    setSelectedUser(user);
+    setRoleForm({ type: user.type, role: user.role });
+    setRoleOpen(true);
+  };
+
+  const validateAdd = () => {
+    const errors: Record<string, string> = {};
+    if (!addForm.firstName.trim()) errors.firstName = 'Обязательное поле';
+    if (!addForm.lastName.trim()) errors.lastName = 'Обязательное поле';
+    if (!addForm.login.trim()) errors.login = 'Обязательное поле';
+    if (!addForm.password.trim()) errors.password = 'Обязательное поле';
+    if (addForm.password !== addForm.passwordConfirm) {
+      errors.passwordConfirm = 'Пароли не совпадают';
+    }
+    setAddErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleCreateUser = () => {
+    if (!validateAdd()) return;
+    const now = new Date().toISOString();
+    const newUser: User = {
+      id: `u_${Date.now()}`,
+      firstName: addForm.firstName.trim(),
+      lastName: addForm.lastName.trim(),
+      middleName: addForm.middleName.trim() || undefined,
+      type: addForm.type,
+      role: addForm.role || getTypeLabel(addForm.type),
+      login: addForm.login.trim(),
+      createdAt: now,
+      lastLoginAt: undefined,
+      isActive: addForm.isActive,
+    };
+    setUsers((prev) => [...prev, newUser]);
+    setAddOpen(false);
+    setAddForm({
+      firstName: '',
+      lastName: '',
+      middleName: '',
+      type: 'doctor',
+      role: '',
+      login: '',
+      password: '',
+      passwordConfirm: '',
+      isActive: true,
+    });
+    onSnackbar('Пользователь создан', 'success');
+  };
+
+  const handleSaveEdit = () => {
+    if (!selectedUser) return;
+    const errors: Record<string, string> = {};
+    if (!editForm.firstName.trim()) errors.firstName = 'Обязательное поле';
+    if (!editForm.lastName.trim()) errors.lastName = 'Обязательное поле';
+    setEditErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
+    setUsers((prev) =>
+      prev.map((u) =>
+        u.id === selectedUser.id
+          ? {
+              ...u,
+              firstName: editForm.firstName.trim(),
+              lastName: editForm.lastName.trim(),
+              middleName: editForm.middleName.trim() || undefined,
+              birthDate: editForm.birthDate || undefined,
+              isActive: editForm.isActive,
+            }
+          : u,
+      ),
+    );
+    setEditOpen(false);
+    onSnackbar('Данные обновлены', 'success');
+  };
+
+  const handleSaveCreds = () => {
+    if (!selectedUser) return;
+    const errors: Record<string, string> = {};
+    if (!credForm.login.trim()) errors.login = 'Обязательное поле';
+    if (credForm.password && credForm.password !== credForm.passwordConfirm) {
+      errors.passwordConfirm = 'Пароли не совпадают';
+    }
+    setCredErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
+    setUsers((prev) =>
+      prev.map((u) =>
+        u.id === selectedUser.id
+          ? {
+              ...u,
+              login: credForm.login.trim(),
+            }
+          : u,
+      ),
+    );
+    setCredsOpen(false);
+    onSnackbar('Пароль обновлен', 'success');
+  };
+
+  const handleSaveRole = () => {
+    if (!selectedUser) return;
+    setUsers((prev) =>
+      prev.map((u) =>
+        u.id === selectedUser.id
+          ? {
+              ...u,
+              type: roleForm.type,
+              role: roleForm.role || getTypeLabel(roleForm.type),
+            }
+          : u,
+      ),
+    );
+    setRoleOpen(false);
+    onSnackbar('Роль обновлена', 'success');
+  };
+
+  return (
+    <Box sx={{ mt: 3 }}>
+      {/* Header row */}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 2,
+        }}
+      >
+        <Box>
+          <Typography variant="h5" sx={{ fontWeight: 700 }}>
+            Пользователи
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#6b7280' }}>
+            Управление аккаунтами: доктора, регистраторы, админы
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => setAddOpen(true)}
+          sx={{
+            borderRadius: 2,
+            px: 2.5,
+            background: 'linear-gradient(135deg,#2563eb,#1d4ed8)',
+          }}
+        >
+          Добавить нового
+        </Button>
+      </Box>
+
+      {/* Top controls */}
+      <Card sx={{ mb: 2 }}>
+        <CardContent>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} md={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Тип</InputLabel>
+                <Select
+                  label="Тип"
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value as any)}
+                >
+                  <MenuItem value="all">Все</MenuItem>
+                  <MenuItem value="doctor">Доктор</MenuItem>
+                  <MenuItem value="registrar">Регистратор</MenuItem>
+                  <MenuItem value="admin">Админ</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                size="small"
+                fullWidth
+                placeholder="Поиск"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Показать</InputLabel>
+                <Select
+                  label="Показать"
+                  value={pageSize}
+                  onChange={(e) => setPageSize(Number(e.target.value))}
+                >
+                  <MenuItem value={25}>25</MenuItem>
+                  <MenuItem value={50}>50</MenuItem>
+                  <MenuItem value={100}>100</MenuItem>
+                  <MenuItem value={500}>500</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={2} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<FileDownloadIcon />}
+                sx={{ borderRadius: 2 }}
+              >
+                Excel
+              </Button>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+
+      {/* Table */}
+      <Paper sx={{ borderRadius: 2, overflow: 'hidden' }}>
+        {loading ? (
+          <Box sx={{ p: 3 }}>
+            <Skeleton variant="rounded" height={40} sx={{ mb: 1 }} />
+            <Skeleton variant="rounded" height={40} sx={{ mb: 1 }} />
+            <Skeleton variant="rounded" height={40} sx={{ mb: 1 }} />
+          </Box>
+        ) : (
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow
+                  sx={{
+                    '& th': {
+                      bgcolor: '#e5f0ff',
+                      fontWeight: 600,
+                      color: '#1e3a8a',
+                    },
+                  }}
+                >
+                  <TableCell>
+                    <TableSortLabel
+                      active={orderBy === 'fullName'}
+                      direction={orderBy === 'fullName' ? order : 'asc'}
+                      onClick={() => handleSort('fullName')}
+                    >
+                      ФИО
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell>
+                    <TableSortLabel
+                      active={orderBy === 'type'}
+                      direction={orderBy === 'type' ? order : 'asc'}
+                      onClick={() => handleSort('type')}
+                    >
+                      Тип
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell>
+                    <TableSortLabel
+                      active={orderBy === 'login'}
+                      direction={orderBy === 'login' ? order : 'asc'}
+                      onClick={() => handleSort('login')}
+                    >
+                      Логин
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell>Роль</TableCell>
+                  <TableCell align="left">
+                    <TableSortLabel
+                      active={orderBy === 'createdAt'}
+                      direction={orderBy === 'createdAt' ? order : 'asc'}
+                      onClick={() => handleSort('createdAt')}
+                    >
+                      Дата регистрации
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell align="left">
+                    <TableSortLabel
+                      active={orderBy === 'lastLoginAt'}
+                      direction={orderBy === 'lastLoginAt' ? order : 'asc'}
+                      onClick={() => handleSort('lastLoginAt')}
+                    >
+                      Дата последнего входа
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell align="center">Действия</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredAndSortedUsers.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} align="center" sx={{ py: 3 }}>
+                      <Typography color="text.secondary">Пользователи не найдены</Typography>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredAndSortedUsers.map((user) => {
+                    const fullName = `${user.lastName} ${user.firstName}${
+                      user.middleName ? ` ${user.middleName}` : ''
+                    }`;
+                    const typeLabel = getTypeLabel(user.type);
+                    const chipColor =
+                      user.type === 'doctor'
+                        ? 'primary'
+                        : user.type === 'registrar'
+                          ? 'default'
+                          : 'secondary';
+                    return (
+                      <TableRow
+                        key={user.id}
+                        sx={{
+                          bgcolor: user.isActive ? 'inherit' : '#f3f4f6',
+                          '&:hover': { bgcolor: '#eff6ff' },
+                        }}
+                      >
+                        <TableCell>
+                          <Stack direction="row" spacing={1} alignItems="center">
+                            <Typography>{fullName}</Typography>
+                            {!user.isActive && (
+                              <Chip label="Отключен" size="small" color="default" variant="outlined" />
+                            )}
+                          </Stack>
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={typeLabel}
+                            size="small"
+                            color={chipColor as any}
+                            variant="outlined"
+                          />
+                        </TableCell>
+                        <TableCell>{user.login}</TableCell>
+                        <TableCell>{user.role}</TableCell>
+                        <TableCell>{formatDateTime(user.createdAt)}</TableCell>
+                        <TableCell>{formatDateTime(user.lastLoginAt)}</TableCell>
+                        <TableCell align="center">
+                          <Stack direction="row" spacing={1} justifyContent="center">
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              onClick={() => openEdit(user)}
+                              title="Редактировать"
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              onClick={() => openCreds(user)}
+                              title="Логин / Пароль"
+                            >
+                              <VpnKeyIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              onClick={() => openRoleDialog(user)}
+                              title="Роль"
+                            >
+                              <SecurityIcon fontSize="small" />
+                            </IconButton>
+                            <FormControlLabel
+                              sx={{ ml: 1 }}
+                              control={
+                                <Switch
+                                  size="small"
+                                  checked={user.isActive}
+                                  onChange={() =>
+                                    setUsers((prev) =>
+                                      prev.map((u) =>
+                                        u.id === user.id ? { ...u, isActive: !u.isActive } : u,
+                                      ),
+                                    )
+                                  }
+                                />
+                              }
+                              label=""
+                            />
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </Paper>
+
+      {/* Add user dialog */}
+      <Dialog open={addOpen} onClose={() => setAddOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Добавить пользователя</DialogTitle>
+        <DialogContent dividers>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <Stack direction="row" spacing={2}>
+              <TextField
+                fullWidth
+                label="Имя"
+                value={addForm.firstName}
+                onChange={(e) => setAddForm({ ...addForm, firstName: e.target.value })}
+                error={Boolean(addErrors.firstName)}
+                helperText={addErrors.firstName}
+              />
+              <TextField
+                fullWidth
+                label="Фамилия"
+                value={addForm.lastName}
+                onChange={(e) => setAddForm({ ...addForm, lastName: e.target.value })}
+                error={Boolean(addErrors.lastName)}
+                helperText={addErrors.lastName}
+              />
+            </Stack>
+            <TextField
+              fullWidth
+              label="Отчество"
+              value={addForm.middleName}
+              onChange={(e) => setAddForm({ ...addForm, middleName: e.target.value })}
+            />
+            <Stack direction="row" spacing={2}>
+              <FormControl fullWidth>
+                <InputLabel>Тип</InputLabel>
+                <Select
+                  label="Тип"
+                  value={addForm.type}
+                  onChange={(e) =>
+                    setAddForm({ ...addForm, type: e.target.value as UserType })
+                  }
+                >
+                  <MenuItem value="doctor">Доктор</MenuItem>
+                  <MenuItem value="registrar">Регистратор</MenuItem>
+                  <MenuItem value="admin">Админ</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                fullWidth
+                label="Роль"
+                value={addForm.role}
+                onChange={(e) => setAddForm({ ...addForm, role: e.target.value })}
+                placeholder="по умолчанию как тип"
+              />
+            </Stack>
+            <Stack direction="row" spacing={2}>
+              <TextField
+                fullWidth
+                label="Логин"
+                value={addForm.login}
+                onChange={(e) => setAddForm({ ...addForm, login: e.target.value })}
+                error={Boolean(addErrors.login)}
+                helperText={addErrors.login}
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={addForm.isActive}
+                    onChange={(e) => setAddForm({ ...addForm, isActive: e.target.checked })}
+                  />
+                }
+                label="Активен"
+              />
+            </Stack>
+            <Stack direction="row" spacing={2}>
+              <TextField
+                fullWidth
+                label="Пароль"
+                type="password"
+                value={addForm.password}
+                onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
+                error={Boolean(addErrors.password)}
+                helperText={addErrors.password}
+              />
+              <TextField
+                fullWidth
+                label="Подтвердить пароль"
+                type="password"
+                value={addForm.passwordConfirm}
+                onChange={(e) => setAddForm({ ...addForm, passwordConfirm: e.target.value })}
+                error={Boolean(addErrors.passwordConfirm)}
+                helperText={addErrors.passwordConfirm}
+              />
+            </Stack>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddOpen(false)}>Отмена</Button>
+          <Button variant="contained" onClick={handleCreateUser}>
+            Создать
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit user dialog */}
+      <Dialog open={editOpen} onClose={() => setEditOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Редактировать пользователя</DialogTitle>
+        <DialogContent dividers>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <Stack direction="row" spacing={2}>
+              <TextField
+                fullWidth
+                label="Имя"
+                value={editForm.firstName}
+                onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
+                error={Boolean(editErrors.firstName)}
+                helperText={editErrors.firstName}
+              />
+              <TextField
+                fullWidth
+                label="Фамилия"
+                value={editForm.lastName}
+                onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
+                error={Boolean(editErrors.lastName)}
+                helperText={editErrors.lastName}
+              />
+            </Stack>
+            <TextField
+              fullWidth
+              label="Отчество"
+              value={editForm.middleName}
+              onChange={(e) => setEditForm({ ...editForm, middleName: e.target.value })}
+            />
+            <TextField
+              fullWidth
+              label="Дата рождения"
+              type="date"
+              value={editForm.birthDate}
+              onChange={(e) => setEditForm({ ...editForm, birthDate: e.target.value })}
+              InputLabelProps={{ shrink: true }}
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={editForm.isActive}
+                  onChange={(e) => setEditForm({ ...editForm, isActive: e.target.checked })}
+                />
+              }
+              label="Активен"
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditOpen(false)}>Отмена</Button>
+          <Button variant="contained" onClick={handleSaveEdit}>
+            Сохранить
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Login / password dialog */}
+      <Dialog open={credsOpen} onClose={() => setCredsOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Изменить логин / пароль</DialogTitle>
+        <DialogContent dividers>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              fullWidth
+              label="Логин"
+              value={credForm.login}
+              onChange={(e) => setCredForm({ ...credForm, login: e.target.value })}
+              error={Boolean(credErrors.login)}
+              helperText={credErrors.login}
+            />
+            <TextField
+              fullWidth
+              label="Новый пароль"
+              type="password"
+              value={credForm.password}
+              onChange={(e) => setCredForm({ ...credForm, password: e.target.value })}
+            />
+            <TextField
+              fullWidth
+              label="Подтвердить пароль"
+              type="password"
+              value={credForm.passwordConfirm}
+              onChange={(e) => setCredForm({ ...credForm, passwordConfirm: e.target.value })}
+              error={Boolean(credErrors.passwordConfirm)}
+              helperText={credErrors.passwordConfirm}
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCredsOpen(false)}>Отмена</Button>
+          <Button variant="contained" onClick={handleSaveCreds}>
+            Сохранить
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Role dialog */}
+      <Dialog open={roleOpen} onClose={() => setRoleOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Изменить роль</DialogTitle>
+        <DialogContent dividers>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <FormControl fullWidth>
+              <InputLabel>Тип</InputLabel>
+              <Select
+                label="Тип"
+                value={roleForm.type}
+                onChange={(e) => setRoleForm({ ...roleForm, type: e.target.value as UserType })}
+              >
+                <MenuItem value="doctor">Доктор</MenuItem>
+                <MenuItem value="registrar">Регистратор</MenuItem>
+                <MenuItem value="admin">Админ</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              fullWidth
+              label="Роль"
+              value={roleForm.role}
+              onChange={(e) => setRoleForm({ ...roleForm, role: e.target.value })}
+              placeholder="например: Врач-оториноларинголог"
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setRoleOpen(false)}>Отмена</Button>
+          <Button variant="contained" onClick={handleSaveRole}>
+            Сохранить
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+}
+
 
 // ============================================================================
 // SECTION 2: DOCTORS
