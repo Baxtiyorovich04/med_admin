@@ -342,53 +342,55 @@ export function ServicesReportPage() {
                           {category.name}
                         </TableCell>
                       </TableRow>
-                      <Collapse in={!collapsed} timeout="auto" unmountOnExit>
-                        <TableRow sx={{ bgcolor: '#e8eaf6', '& th': { fontWeight: 600, color: '#3949ab' } }}>
-                          <TableCell colSpan={2} component="th">Название услуги</TableCell>
-                          <TableCell component="th">Доктора (кто выполнял)</TableCell>
-                          <TableCell align="right" component="th">Количество</TableCell>
-                          <TableCell align="right" component="th">Цена</TableCell>
-                          <TableCell align="right" component="th">Общая сумма</TableCell>
-                        </TableRow>
-                        {svc.map((s, index) => {
-                          const row = reportData.get(s.id)
-                          const count = row?.count ?? 0
-                          const total = row?.totalRevenue ?? 0
-                          const doctorNames = row?.doctorNames ?? []
-                          return (
-                            <TableRow
-                              key={s.id}
-                              sx={{
-                                '&:nth-of-type(even)': { bgcolor: '#fafafa' },
-                                '&:hover': { bgcolor: '#e3f2fd' },
-                              }}
-                            >
-                              <TableCell sx={{ width: 48 }}>{index + 1}</TableCell>
-                              <TableCell>{s.name}</TableCell>
-                              <TableCell>
-                                {doctorNames.length > 0 ? (
-                                  <Stack direction="row" flexWrap="wrap" gap={0.5}>
-                                    {doctorNames.map((name) => (
-                                      <Chip key={name} label={name} size="small" variant="outlined" sx={{ fontSize: '0.75rem' }} />
-                                    ))}
-                                  </Stack>
-                                ) : (
-                                  '-'
-                                )}
-                              </TableCell>
-                              <TableCell align="right">{count}</TableCell>
-                              <TableCell align="right">{formatCurrency(s.price)}</TableCell>
-                              <TableCell align="right">{formatCurrency(total)}</TableCell>
-                            </TableRow>
-                          )
-                        })}
-                        <TableRow sx={{ bgcolor: '#ffebee', '& td': { fontWeight: 700, color: '#b71c1c' } }}>
-                          <TableCell colSpan={3}>ИТОГО по категории</TableCell>
-                          <TableCell align="right">{catCount}</TableCell>
-                          <TableCell align="right">—</TableCell>
-                          <TableCell align="right">{formatCurrency(catRevenue)}</TableCell>
-                        </TableRow>
-                      </Collapse>
+                      {!collapsed && (
+                        <>
+                          <TableRow sx={{ bgcolor: '#e8eaf6', '& th': { fontWeight: 600, color: '#3949ab' } }}>
+                            <TableCell colSpan={2} component="th">Название услуги</TableCell>
+                            <TableCell component="th">Доктора (кто выполнял)</TableCell>
+                            <TableCell align="right" component="th">Количество</TableCell>
+                            <TableCell align="right" component="th">Цена</TableCell>
+                            <TableCell align="right" component="th">Общая сумма</TableCell>
+                          </TableRow>
+                          {svc.map((s, index) => {
+                            const row = reportData.get(s.id)
+                            const count = row?.count ?? 0
+                            const total = row?.totalRevenue ?? 0
+                            const doctorNames = row?.doctorNames ?? []
+                            return (
+                              <TableRow
+                                key={s.id}
+                                sx={{
+                                  '&:nth-of-type(even)': { bgcolor: '#fafafa' },
+                                  '&:hover': { bgcolor: '#e3f2fd' },
+                                }}
+                              >
+                                <TableCell sx={{ width: 48 }}>{index + 1}</TableCell>
+                                <TableCell>{s.name}</TableCell>
+                                <TableCell>
+                                  {doctorNames.length > 0 ? (
+                                    <Stack direction="row" flexWrap="wrap" gap={0.5}>
+                                      {doctorNames.map((name) => (
+                                        <Chip key={name} label={name} size="small" variant="outlined" sx={{ fontSize: '0.75rem' }} />
+                                      ))}
+                                    </Stack>
+                                  ) : (
+                                    '-'
+                                  )}
+                                </TableCell>
+                                <TableCell align="right">{count}</TableCell>
+                                <TableCell align="right">{formatCurrency(s.price)}</TableCell>
+                                <TableCell align="right">{formatCurrency(total)}</TableCell>
+                              </TableRow>
+                            )
+                          })}
+                          <TableRow sx={{ bgcolor: '#ffebee', '& td': { fontWeight: 700, color: '#b71c1c' } }}>
+                            <TableCell colSpan={3}>ИТОГО по категории</TableCell>
+                            <TableCell align="right">{catCount}</TableCell>
+                            <TableCell align="right">—</TableCell>
+                            <TableCell align="right">{formatCurrency(catRevenue)}</TableCell>
+                          </TableRow>
+                        </>
+                      )}
                     </React.Fragment>
                   )
                 })
@@ -399,13 +401,13 @@ export function ServicesReportPage() {
       </Paper>
 
       {/* Grand total card */}
-      <Card sx={{ mt: 3, bgcolor: '#1a237e', color: 'white', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
-        <CardContent sx={{ py: 2.5 }}>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} justifyContent="center" alignItems="center">
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+      <Card sx={{ mt: 2.5, bgcolor: '#1a237e', color: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', borderRadius: 2 }}>
+        <CardContent sx={{ py: 1.5 }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center" alignItems="center">
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
               Всего услуг выполнено: {grandCount}
             </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
               Общий доход: {formatCurrency(grandRevenue)}
             </Typography>
           </Stack>
