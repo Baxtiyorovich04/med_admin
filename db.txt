@@ -1,0 +1,389 @@
+# Frontend API contract — endpoints, payloads, response shapes, frontend functions
+
+All amounts in UZS (integer). Dates ISO 8601. Timezone: Asia/Tashkent (+05:00).
+
+Pagination convention:
+- Query params: page (1-based), limit (default 20), sortBy, sortOrder (asc|desc).
+- Response: { data: T[], total: number, page: number, limit: number }
+
+Filter convention:
+- Pass filters as query params: dateFrom, dateTo, doctorId, categoryId, status, etc.
+
+================================================================================
+AUTH
+================================================================================
+
+POST /auth/login
+  Body: { login: string, password: string }
+  Response: { accessToken: string, refreshToken: string, expiresIn: number }
+  Notes: 401 on invalid credentials.
+
+POST /auth/refresh
+  Body: { refreshToken: string }
+  Response: { accessToken: string, refreshToken: string, expiresIn: number }
+  Notes: 401 if refresh invalid; frontend then redirect to /login.
+
+GET /auth/me
+  Headers: Authorization: Bearer <accessToken>
+  Response: User (id, firstName, lastName, middleName?, type, role, login, createdAt, lastLoginAt?, isActive)
+  Notes: 401 if not authenticated.
+
+Frontend functions:
+  login(login, password)        -> POST /auth/login
+  refreshTokens(refreshToken)    -> POST /auth/refresh
+  getMe()                        -> GET /auth/me
+
+================================================================================
+DICTIONARIES (for registration & settings)
+================================================================================
+
+GET /dictionaries
+  Response: {
+    meta: { clinicName: string, currency: string, timezone: string },
+    districts: { id: string, name: string }[],
+    discounts: { id: string, label: string, percent: number }[],
+    cardTypes: { id: string, name: string }[],
+    specialties: { id: string, name: string }[],
+    serviceCategories: { id: string, name: string }[]
+  }
+  Notes: No auth required for public registration; or require registrar+.
+
+Frontend functions:
+  getDictionaries()             -> GET /dictionaries
+
+================================================================================
+PATIENTS
+================================================================================
+
+GET /patients/search?q=phoneOrName&limit=20
+  Response: Patient[] (see Patient shape below)
+  Notes: q = phone (partial) or full name (surname/name); limit optional.
+
+GET /patients?page=1&limit=20&archived=false
+  Response: { data: Patient[], total: number, page: number, limit: number }
+  Notes: archived: true | false; for Settings → Patients.
+
+GET /patients/:id
+  Response: Patient
+  Notes: 404 if not found.
+
+POST /patients
+  Body: PatientCreate { lastName, firstName, middleName, gender, birthDate, phone, address, districtId?, pinfl? }
+  Response: Patient
+  Notes: Validation: required surname, name, fatherName, gender, phone, address.
+
+PUT /patients/:id
+  Body: PatientUpdate (partial PatientCreate)
+  Response: Patient
+
+PATCH /patients/:id/archive
+  Body: { archived: boolean }
+  Response: Patient
+  Notes: Prefer archive instead of delete if history exists.
+
+DELETE /patients/:id
+  Response: 204
+  Notes: Only if no visits/history; otherwise return 409.
+
+Patient: {
+  id: string,
+  lastName: string, firstName: string, middleName: string,
+  gender: 'male' | 'female',
+  birthDate: string,  // ISO date
+  phone: string, address: string, districtId?: string, pinfl?: string,
+  archived?: boolean,
+  createdAt?: string, updatedAt?: string
+}
+
+Frontend functions:
+  searchPatients(q, limit?)      -> GET /patients/search
+  getPatients(params)            -> GET /patients
+  getPatient(id)                 -> GET /patients/:id
+  createPatient(body)            -> POST /patients
+  updatePatient(id, body)        -> PUT /patients/:id
+  archivePatient(id, archived)   -> PATCH /patients/:id/archive
+  deletePatient(id)              -> DELETE /patients/:id
+
+================================================================================
+DOCTORS
+================================================================================
+
+GET /doctors?activeOnly=true
+  Response: Doctor[]
+  Notes: activeOnly default true for registration; false for settings.
+
+GET /doctors/:id
+  Response: Doctor
+
+POST /doctors
+  Body: DoctorCreate { fullName: string, specialtyId: string, serviceIds: string[], active?: boolean }
+  Response: Doctor
+
+PUT /doctors/:id
+  Body: DoctorUpdate (partial: fullName, specialtyId, serviceIds, active)
+  Response: Doctor
+
+PATCH /doctors/:id/salary-percent
+  Body: { salaryPercent: number }
+  Response: Doctor
+  Notes: salaryPercent 0–100; used in salary report. Global default in settings if needed.
+
+Doctor: {
+  id: string, fullName: string, specialtyId: string, active: boolean,
+  serviceIds: string[],
+  salaryPercent?: number,  // nullable; fallback to global default
+  createdAt?: string, updatedAt?: string
+}
+
+Frontend functions:
+  getDoctors(activeOnly?)        -> GET /doctors
+  getDoctor(id)                  -> GET /doctors/:id
+  createDoctor(body)             -> POST /doctors
+  updateDoctor(id, body)         -> PUT /doctors/:id
+  updateDoctorSalaryPercent(id, percent) -> PATCH /doctors/:id/salary-percent
+
+================================================================================
+SERVICE CATEGORIES & SERVICES
+================================================================================
+
+GET /service-categories
+  Response: ServiceCategory[]  { id: string, name: string }
+
+GET /services?categoryId=&activeOnly=true
+  Response: Service[]
+  Notes: categoryId optional filter; activeOnly for registration.
+
+GET /services/:id
+  Response: Service
+
+POST /service-categories
+  Body: { name: string }
+  Response: ServiceCategory
+
+PUT /service-categories/:id
+  Body: { name: string }
+  Response: ServiceCategory
+
+DELETE /service-categories/:id
+  Response: 204
+  Notes: Fail if services exist in category (409).
+
+POST /services
+  Body: ServiceCreate { categoryId: string, name: string, price: number, specialtyId?: string, active?: boolean }
+  Response: Service
+
+PUT /services/:id
+  Body: ServiceUpdate (partial: name, price, categoryId, active)
+  Response: Service
+  Notes: Price change: backend keeps history or at least priceAtTime on visit items.
+
+PATCH /services/:id/hide
+  Body: { active: boolean }
+  Response: Service
+
+Service: {
+  id: string, categoryId: string, name: string, price: number, active: boolean,
+  specialtyId?: string,
+  createdAt?: string, updatedAt?: string
+}
+
+Frontend functions:
+  getServiceCategories()        -> GET /service-categories
+  getServices(params?)          -> GET /services
+  getService(id)                -> GET /services/:id
+  createServiceCategory(body)   -> POST /service-categories
+  updateServiceCategory(id, body) -> PUT /service-categories/:id
+  deleteServiceCategory(id)     -> DELETE /service-categories/:id
+  createService(body)           -> POST /services
+  updateService(id, body)        -> PUT /services/:id
+  setServiceActive(id, active)  -> PATCH /services/:id/hide
+
+================================================================================
+VISITS (registration flow)
+================================================================================
+
+POST /visits
+  Body: VisitCreate {
+    patientId: string,
+    doctorId: string,
+    discountId?: string,
+    openNewCard?: boolean, cardTypeId?: string, cardNumber?:, cardOpenedAt?:, responsibleDoctorId?:,
+    insurance?: boolean, referralInfo?:, referralDoctorId?:,
+    items: { serviceId: string, doctorId: string, price: number }[],
+    subtotal: number, discountAmount: number, total: number
+  }
+  Response: Visit
+  Notes: Creates visit as UNPAID; payment later via cashier. price = priceAtTime (integer UZS).
+
+Visit: {
+  id: string, patientId: string, doctorId: string,
+  discountId?: string, openNewCard?: boolean, cardTypeId?: string, cardNumber?:, cardOpenedAt?:,
+  responsibleDoctorId?: string, insurance?: boolean, referralInfo?: string, referralDoctorId?: string,
+  items: VisitItem[],
+  subtotal: number, discountAmount: number, total: number,
+  paymentStatus: 'PAID' | 'UNPAID' | 'PARTIAL',
+  createdAt: string, updatedAt?: string
+}
+
+VisitItem: { serviceId: string, doctorId: string, price: number, quantity?: number }
+
+Frontend functions:
+  createVisit(body)              -> POST /visits
+
+================================================================================
+PAYMENTS
+================================================================================
+
+GET /visits/:visitId/payments
+  Response: Payment[]
+
+POST /visits/:visitId/payments
+  Body: { amount: number, paymentMethod: 'cash' | 'card' | 'debt', paidAt?: string }
+  Response: Payment
+  Notes: Sum of payments vs visit.total determines PAID/UNPAID/PARTIAL.
+
+Payment: {
+  id: string, visitId: string, amount: number, paymentMethod: string,
+  paidAt: string, createdAt?: string
+}
+
+Frontend functions:
+  getPaymentsByVisit(visitId)   -> GET /visits/:visitId/payments
+  createPayment(visitId, body)  -> POST /visits/:visitId/payments
+
+================================================================================
+REPORTS — SERVICES
+================================================================================
+
+GET /reports/services?dateFrom=YYYY-MM-DD&dateTo=YYYY-MM-DD&doctorId=&categoryId=&paymentStatus=&includeDiscounts=true
+  Response: ServicesReportResponse {
+    groups: {
+      categoryId: string, categoryName: string,
+      rows: { serviceId: string, serviceName: string, doctorIds: string[], doctorNames: string[], count: number, price: number, totalSum: number }[],
+      categoryTotal: number
+    }[],
+    grandTotal: number
+  }
+  Notes: Include ALL services in category even if count=0, sum=0. price = effective price (after discount if includeDiscounts).
+
+GET /reports/services/export?same query params
+  Response: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet (.xlsx)
+  Notes: Same filters; frontend triggers download.
+
+Frontend functions:
+  getServicesReport(params)     -> GET /reports/services
+  exportServicesReportXlsx(params) -> GET /reports/services/export (blob, save as file)
+
+================================================================================
+REPORTS — SALARY
+================================================================================
+
+GET /reports/salary?dateFrom=YYYY-MM-DD&dateTo=YYYY-MM-DD&doctorIds=id1,id2&serviceId=&paymentStatus=&includeDiscounts=true
+  Response: SalaryReportResponse {
+    globalSalaryPercent: number,
+    rows: {
+      doctorId: string, doctorName: string,
+      patientsCount: number, servicesCount: number, totalIncome: number,
+      salaryPercent: number, salaryAmount: number
+    }[],
+    grandTotalIncome: number, grandTotalSalary: number
+  }
+  Notes: salaryPercent editable per doctor (default from doctor or global). salaryAmount = totalIncome * salaryPercent / 100. No себестоимость / расход.
+
+PATCH /doctors/:id/salary-percent
+  (see Doctors section)
+
+GET /reports/salary/export?same query params
+  Response: .xlsx
+  Notes: Export Excel.
+
+GET /reports/salary/breakdown?doctorId=&dateFrom=&dateTo=
+  Response: { visits: VisitSummary[], totalIncome: number }
+  Notes: Optional drawer per doctor.
+
+Frontend functions:
+  getSalaryReport(params)       -> GET /reports/salary
+  exportSalaryReportXlsx(params) -> GET /reports/salary/export
+  getSalaryBreakdown(doctorId, dateFrom, dateTo) -> GET /reports/salary/breakdown
+  updateDoctorSalaryPercent(id, percent) -> PATCH /doctors/:id/salary-percent
+
+================================================================================
+USERS (Settings → Users; roles: doctor, admin, registrar)
+================================================================================
+
+GET /users?page=1&limit=20
+  Response: { data: User[], total: number, page: number, limit: number }
+  Notes: Columns: ФИО, Тип, Логин, Роль, Дата регистрации, Дата последнего входа, Действия. No avatar.
+
+GET /users/:id
+  Response: User
+
+POST /users
+  Body: UserCreate { firstName, lastName, middleName?, type: 'doctor'|'admin'|'registrar', login, password, birthDate? }
+  Response: User
+
+PUT /users/:id
+  Body: UserUpdate (partial: firstName, lastName, middleName, birthDate)
+  Response: User
+
+PATCH /users/:id/login
+  Body: { login: string }
+  Response: User
+  Notes: Change login.
+
+PATCH /users/:id/password
+  Body: { password: string }
+  Response: 204
+  Notes: Change password.
+
+PATCH /users/:id/role
+  Body: { role: 'doctor'|'admin'|'registrar' }
+  Response: User
+
+PATCH /users/:id/disable
+  Body: { isActive: boolean }
+  Response: User
+
+User: {
+  id: string, firstName: string, lastName: string, middleName?: string,
+  type: 'doctor' | 'admin' | 'registrar',
+  role: string,  // same as type typically
+  login: string, createdAt: string, lastLoginAt?: string, isActive: boolean, birthDate?: string
+}
+
+Frontend functions:
+  getUsers(params)              -> GET /users
+  getUser(id)                   -> GET /users/:id
+  createUser(body)               -> POST /users
+  updateUser(id, body)          -> PUT /users/:id
+  changeUserLogin(id, login)    -> PATCH /users/:id/login
+  changeUserPassword(id, password) -> PATCH /users/:id/password
+  changeUserRole(id, role)      -> PATCH /users/:id/role
+  setUserActive(id, isActive)   -> PATCH /users/:id/disable
+
+================================================================================
+RECEIPT / PDF (optional)
+================================================================================
+
+GET /visits/:id/receipt
+  Response: application/pdf
+  Notes: Receipt PDF for visit; frontend opens in new tab or downloads.
+
+Frontend functions:
+  getVisitReceiptPdf(visitId)    -> GET /visits/:id/receipt (blob, open or save)
+
+================================================================================
+SUMMARY — FRONTEND FUNCTIONS → ENDPOINTS
+================================================================================
+
+Auth:           login, refreshTokens, getMe
+Dictionaries:   getDictionaries
+Patients:       searchPatients, getPatients, getPatient, createPatient, updatePatient, archivePatient, deletePatient
+Doctors:        getDoctors, getDoctor, createDoctor, updateDoctor, updateDoctorSalaryPercent
+Categories:     getServiceCategories, createServiceCategory, updateServiceCategory, deleteServiceCategory
+Services:       getServices, getService, createService, updateService, setServiceActive
+Visits:         createVisit
+Payments:       getPaymentsByVisit, createPayment
+Reports:        getServicesReport, exportServicesReportXlsx, getSalaryReport, exportSalaryReportXlsx, getSalaryBreakdown
+Users:          getUsers, getUser, createUser, updateUser, changeUserLogin, changeUserPassword, changeUserRole, setUserActive
+Receipt:        getVisitReceiptPdf

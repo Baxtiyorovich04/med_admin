@@ -1,0 +1,307 @@
+{
+  "meta": {
+    "clinicName": "Ishonch",
+    "currency": "UZS",
+    "timezone": "Asia/Tashkent"
+  },
+  "users": [
+    {
+      "id": "usr_admin_1",
+      "firstName": "Админ",
+      "lastName": "Системный",
+      "middleName": "Иванович",
+      "type": "admin",
+      "role": "admin",
+      "login": "admin",
+      "createdAt": "2025-01-15T10:00:00+05:00",
+      "lastLoginAt": "2026-02-28T08:30:00+05:00",
+      "isActive": true
+    },
+    {
+      "id": "usr_reg_1",
+      "firstName": "Елена",
+      "lastName": "Регистратор",
+      "middleName": "Петровна",
+      "type": "registrar",
+      "role": "registrar",
+      "login": "registrar",
+      "createdAt": "2025-02-01T09:00:00+05:00",
+      "lastLoginAt": "2026-02-27T17:45:00+05:00",
+      "isActive": true
+    },
+    {
+      "id": "usr_doc_1",
+      "firstName": "Юсуф",
+      "lastName": "Абдуллаев",
+      "middleName": "Абдуганиевич",
+      "type": "doctor",
+      "role": "doctor",
+      "login": "doctor1",
+      "createdAt": "2025-01-20T10:00:00+05:00",
+      "lastLoginAt": "2026-02-26T18:00:00+05:00",
+      "isActive": true
+    },
+    {
+      "id": "usr_doc_2",
+      "firstName": "Нилуфар",
+      "lastName": "Каримова",
+      "middleName": "Шухратовна",
+      "type": "doctor",
+      "role": "doctor",
+      "login": "doctor2",
+      "createdAt": "2025-01-20T10:00:00+05:00",
+      "lastLoginAt": "2026-02-25T17:30:00+05:00",
+      "isActive": true
+    },
+    {
+      "id": "usr_doc_3",
+      "firstName": "Бехруз",
+      "lastName": "Рахимов",
+      "middleName": "Азизович",
+      "type": "doctor",
+      "role": "doctor",
+      "login": "doctor3",
+      "createdAt": "2025-01-22T10:00:00+05:00",
+      "lastLoginAt": null,
+      "isActive": true
+    }
+  ],
+  "districts": [
+    { "id": "dist_yunusabad", "name": "Юнусабад" },
+    { "id": "dist_mirabad", "name": "Мирабад" },
+    { "id": "dist_chilanzar", "name": "Чиланзар" },
+    { "id": "dist_sergeli", "name": "Сергелий" }
+  ],
+  "discounts": [
+    { "id": "disc_none", "label": "без скидки", "percent": 0 },
+    { "id": "disc_10", "label": "10%", "percent": 10 },
+    { "id": "disc_20", "label": "20%", "percent": 20 }
+  ],
+  "cardTypes": [
+    { "id": "card_standard", "name": "Стандарт" },
+    { "id": "card_child", "name": "Детская" }
+  ],
+  "specialties": [
+    { "id": "spec_ent", "name": "Лор" },
+    { "id": "spec_cardio", "name": "Кардиолог" },
+    { "id": "spec_gyne", "name": "Гинеколог" },
+    { "id": "spec_therapy", "name": "Терапевт" }
+  ],
+  "serviceCategories": [
+    { "id": "cat_reception", "name": "Прием" },
+    { "id": "cat_diagnostics", "name": "Диагностика" },
+    { "id": "cat_inpatient", "name": "Стационар" },
+    { "id": "cat_lab", "name": "Лаборатория" }
+  ],
+  "doctors": [
+    {
+      "id": "doc_1001",
+      "fullName": "Абдуллаев Юсуф Абдуганиевич",
+      "specialtyId": "spec_ent",
+      "active": true,
+      "serviceIds": ["srv_ent_consult", "srv_ent_endoscopy", "srv_ent_adenotomy", "srv_ent_tonsillotomy", "srv_ent_vasotomy", "srv_ent_septoplasty"],
+      "salaryPercent": 40
+    },
+    {
+      "id": "doc_1002",
+      "fullName": "Каримова Нилуфар Шухратовна",
+      "specialtyId": "spec_gyne",
+      "active": true,
+      "serviceIds": ["srv_gyn_consult", "srv_gyn_ultrasound"],
+      "salaryPercent": 35
+    },
+    {
+      "id": "doc_1003",
+      "fullName": "Рахимов Бехруз Азизович",
+      "specialtyId": "spec_cardio",
+      "active": true,
+      "serviceIds": ["srv_cardio_consult", "srv_ecg"],
+      "salaryPercent": 45
+    }
+  ],
+  "services": [
+    { "id": "srv_ent_consult", "categoryId": "cat_reception", "specialtyId": "spec_ent", "name": "ЛОР консультация", "price": 100000, "active": true },
+    { "id": "srv_ent_endoscopy", "categoryId": "cat_diagnostics", "specialtyId": "spec_ent", "name": "Эндоскопия ЛОР-органов", "price": 150000, "active": true },
+    { "id": "srv_ent_adenotomy", "categoryId": "cat_inpatient", "specialtyId": "spec_ent", "name": "Аденотомия", "price": 3600000, "active": true },
+    { "id": "srv_ent_tonsillotomy", "categoryId": "cat_inpatient", "specialtyId": "spec_ent", "name": "Тонзиллотомия", "price": 3800000, "active": true },
+    { "id": "srv_ent_vasotomy", "categoryId": "cat_inpatient", "specialtyId": "spec_ent", "name": "Вазотомия", "price": 2400000, "active": true },
+    { "id": "srv_ent_septoplasty", "categoryId": "cat_inpatient", "specialtyId": "spec_ent", "name": "Септопластика", "price": 7000000, "active": true },
+    { "id": "srv_cardio_consult", "categoryId": "cat_reception", "specialtyId": "spec_cardio", "name": "Кардиолог консультация", "price": 120000, "active": true },
+    { "id": "srv_ecg", "categoryId": "cat_diagnostics", "specialtyId": "spec_cardio", "name": "ЭКГ", "price": 90000, "active": true },
+    { "id": "srv_gyn_consult", "categoryId": "cat_reception", "specialtyId": "spec_gyne", "name": "Гинеколог консультация", "price": 110000, "active": true },
+    { "id": "srv_gyn_ultrasound", "categoryId": "cat_diagnostics", "specialtyId": "spec_gyne", "name": "УЗИ (гинекология)", "price": 160000, "active": true },
+    { "id": "srv_lab_blood", "categoryId": "cat_lab", "specialtyId": "spec_therapy", "name": "Анализ крови общий", "price": 80000, "active": true },
+    { "id": "srv_lab_urine", "categoryId": "cat_lab", "specialtyId": "spec_therapy", "name": "Анализ мочи", "price": 50000, "active": true }
+  ],
+  "patients": [
+    { "id": "pat_2001", "lastName": "Ибрагимов", "firstName": "Азиз", "middleName": "Бахтиярович", "gender": "male", "birthDate": "1995-04-12", "phone": "+998901112233", "districtId": "dist_yunusabad", "address": "Юнусабад, дом 12, кв 45", "pinfl": "12345678901234", "archived": false },
+    { "id": "pat_2002", "lastName": "Саидова", "firstName": "Мадина", "middleName": "Рустамовна", "gender": "female", "birthDate": "2001-11-03", "phone": "+998935556677", "districtId": "dist_mirabad", "address": "Мирабад, ул. Фергана, дом 7", "pinfl": "98765432109876", "archived": false },
+    { "id": "pat_2003", "lastName": "Усманов", "firstName": "Марат", "middleName": "Эргашевич", "gender": "male", "birthDate": "1988-07-25", "phone": "+998901234567", "districtId": "dist_chilanzar", "address": "Чиланзар, 15-й мкр, дом 45", "pinfl": "11223344556677", "archived": false },
+    { "id": "pat_2004", "lastName": "Юсупова", "firstName": "Лилия", "middleName": "Олеговна", "gender": "female", "birthDate": "1992-11-10", "phone": "+998932145678", "districtId": "dist_sergeli", "address": "Сергелий, 1-й квартал, дом 33", "pinfl": "98765432154321", "archived": false },
+    { "id": "pat_2005", "lastName": "Кучканов", "firstName": "Руслан", "middleName": "Ахмедович", "gender": "male", "birthDate": "1985-03-18", "phone": "+998909876543", "districtId": "dist_yunusabad", "address": "Юнусабад, 1-й мкр, дом 18", "pinfl": "55667788990011", "archived": false },
+    { "id": "pat_2006", "lastName": "Қодиров", "firstName": "Илхам", "middleName": "Намойатович", "gender": "male", "birthDate": "1990-05-20", "phone": "+998933334455", "districtId": "dist_sergeli", "address": "Сергелий, 2-й квартал, дом 22", "pinfl": "22334455667788", "archived": false },
+    { "id": "pat_2007", "lastName": "Ғофурова", "firstName": "Зебо", "middleName": "Фарухжоновна", "gender": "female", "birthDate": "1998-08-14", "phone": "+998934445566", "districtId": "dist_yunusabad", "address": "Юнусабад, 10-й мкр, дом 5", "pinfl": "33445566778899", "archived": false },
+    { "id": "pat_2008", "lastName": "Норов", "firstName": "Дилмурод", "middleName": "Рашидович", "gender": "male", "birthDate": "1987-12-03", "phone": "+998991112233", "districtId": "dist_mirabad", "address": "Мирабад, ул. Фергана, дом 50", "pinfl": "44556677889900", "archived": false }
+  ],
+  "patientCards": [
+    { "id": "card_3001", "patientId": "pat_2001", "cardTypeId": "card_standard", "cardNumber": "A-000245", "openedAt": "2025-09-10", "insurance": false, "responsibleDoctorId": "doc_1001" },
+    { "id": "card_3002", "patientId": "pat_2002", "cardTypeId": "card_standard", "cardNumber": "A-000246", "openedAt": "2025-10-01", "insurance": false, "responsibleDoctorId": "doc_1002" }
+  ],
+  "visits": [
+    {
+      "id": "vis_001",
+      "patientId": "pat_2001",
+      "doctorId": "doc_1001",
+      "discountId": "disc_none",
+      "items": [{ "serviceId": "srv_ent_consult", "doctorId": "doc_1001", "price": 100000 }],
+      "subtotal": 100000,
+      "discountAmount": 0,
+      "total": 100000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-01T09:15:00+05:00"
+    },
+    {
+      "id": "vis_002",
+      "patientId": "pat_2002",
+      "doctorId": "doc_1002",
+      "discountId": "disc_10",
+      "items": [{ "serviceId": "srv_gyn_consult", "doctorId": "doc_1002", "price": 110000 }, { "serviceId": "srv_gyn_ultrasound", "doctorId": "doc_1002", "price": 160000 }],
+      "subtotal": 270000,
+      "discountAmount": 27000,
+      "total": 243000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-02T10:30:00+05:00"
+    },
+    {
+      "id": "vis_003",
+      "patientId": "pat_2003",
+      "doctorId": "doc_1003",
+      "discountId": "disc_none",
+      "items": [{ "serviceId": "srv_cardio_consult", "doctorId": "doc_1003", "price": 120000 }, { "serviceId": "srv_ecg", "doctorId": "doc_1003", "price": 90000 }],
+      "subtotal": 210000,
+      "discountAmount": 0,
+      "total": 210000,
+      "paymentStatus": "UNPAID",
+      "createdAt": "2026-02-03T11:00:00+05:00"
+    },
+    {
+      "id": "vis_004",
+      "patientId": "pat_2001",
+      "doctorId": "doc_1001",
+      "discountId": "disc_none",
+      "items": [{ "serviceId": "srv_ent_endoscopy", "doctorId": "doc_1001", "price": 150000 }],
+      "subtotal": 150000,
+      "discountAmount": 0,
+      "total": 150000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-05T14:20:00+05:00"
+    },
+    {
+      "id": "vis_005",
+      "patientId": "pat_2004",
+      "doctorId": "doc_1002",
+      "discountId": "disc_20",
+      "items": [{ "serviceId": "srv_gyn_ultrasound", "doctorId": "doc_1002", "price": 160000 }],
+      "subtotal": 160000,
+      "discountAmount": 32000,
+      "total": 128000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-08T09:45:00+05:00"
+    },
+    {
+      "id": "vis_006",
+      "patientId": "pat_2005",
+      "doctorId": "doc_1003",
+      "discountId": "disc_none",
+      "items": [{ "serviceId": "srv_ecg", "doctorId": "doc_1003", "price": 90000 }],
+      "subtotal": 90000,
+      "discountAmount": 0,
+      "total": 90000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-10T16:00:00+05:00"
+    },
+    {
+      "id": "vis_007",
+      "patientId": "pat_2006",
+      "doctorId": "doc_1001",
+      "discountId": "disc_none",
+      "items": [{ "serviceId": "srv_ent_consult", "doctorId": "doc_1001", "price": 100000 }],
+      "subtotal": 100000,
+      "discountAmount": 0,
+      "total": 100000,
+      "paymentStatus": "UNPAID",
+      "createdAt": "2026-02-12T10:00:00+05:00"
+    },
+    {
+      "id": "vis_008",
+      "patientId": "pat_2007",
+      "doctorId": "doc_1002",
+      "discountId": "disc_none",
+      "items": [{ "serviceId": "srv_gyn_consult", "doctorId": "doc_1002", "price": 110000 }],
+      "subtotal": 110000,
+      "discountAmount": 0,
+      "total": 110000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-15T11:30:00+05:00"
+    },
+    {
+      "id": "vis_009",
+      "patientId": "pat_2008",
+      "doctorId": "doc_1003",
+      "discountId": "disc_10",
+      "items": [{ "serviceId": "srv_cardio_consult", "doctorId": "doc_1003", "price": 120000 }],
+      "subtotal": 120000,
+      "discountAmount": 12000,
+      "total": 108000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-18T09:00:00+05:00"
+    },
+    {
+      "id": "vis_010",
+      "patientId": "pat_2001",
+      "doctorId": "doc_1001",
+      "discountId": "disc_none",
+      "items": [{ "serviceId": "srv_ent_consult", "doctorId": "doc_1001", "price": 100000 }, { "serviceId": "srv_ent_endoscopy", "doctorId": "doc_1001", "price": 150000 }],
+      "subtotal": 250000,
+      "discountAmount": 0,
+      "total": 250000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-22T14:00:00+05:00"
+    },
+    {
+      "id": "vis_011",
+      "patientId": "pat_2002",
+      "doctorId": "doc_1002",
+      "discountId": "disc_none",
+      "items": [{ "serviceId": "srv_gyn_ultrasound", "doctorId": "doc_1002", "price": 160000 }],
+      "subtotal": 160000,
+      "discountAmount": 0,
+      "total": 160000,
+      "paymentStatus": "UNPAID",
+      "createdAt": "2026-02-25T10:15:00+05:00"
+    },
+    {
+      "id": "vis_012",
+      "patientId": "pat_2003",
+      "doctorId": "doc_1003",
+      "discountId": "disc_none",
+      "items": [{ "serviceId": "srv_cardio_consult", "doctorId": "doc_1003", "price": 120000 }, { "serviceId": "srv_ecg", "doctorId": "doc_1003", "price": 90000 }],
+      "subtotal": 210000,
+      "discountAmount": 0,
+      "total": 210000,
+      "paymentStatus": "PAID",
+      "createdAt": "2026-02-27T15:45:00+05:00"
+    }
+  ],
+  "payments": [
+    { "id": "pay_001", "visitId": "vis_001", "amount": 100000, "paymentMethod": "cash", "paidAt": "2026-02-01T09:20:00+05:00" },
+    { "id": "pay_002", "visitId": "vis_002", "amount": 243000, "paymentMethod": "card", "paidAt": "2026-02-02T10:35:00+05:00" },
+    { "id": "pay_004", "visitId": "vis_004", "amount": 150000, "paymentMethod": "cash", "paidAt": "2026-02-05T14:25:00+05:00" },
+    { "id": "pay_005", "visitId": "vis_005", "amount": 128000, "paymentMethod": "card", "paidAt": "2026-02-08T09:50:00+05:00" },
+    { "id": "pay_006", "visitId": "vis_006", "amount": 90000, "paymentMethod": "cash", "paidAt": "2026-02-10T16:05:00+05:00" },
+    { "id": "pay_008", "visitId": "vis_008", "amount": 110000, "paymentMethod": "card", "paidAt": "2026-02-15T11:35:00+05:00" },
+    { "id": "pay_009", "visitId": "vis_009", "amount": 108000, "paymentMethod": "cash", "paidAt": "2026-02-18T09:05:00+05:00" },
+    { "id": "pay_010", "visitId": "vis_010", "amount": 250000, "paymentMethod": "card", "paidAt": "2026-02-22T14:10:00+05:00" },
+    { "id": "pay_012", "visitId": "vis_012", "amount": 210000, "paymentMethod": "cash", "paidAt": "2026-02-27T15:50:00+05:00" }
+  ]
+}

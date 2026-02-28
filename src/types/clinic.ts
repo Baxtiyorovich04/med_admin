@@ -38,6 +38,8 @@ export interface Doctor {
   specialtyId: string
   active: boolean
   serviceIds: string[]
+  /** 0–100; used in salary report. Null = use global default. */
+  salaryPercent?: number
 }
 
 export interface Service {
